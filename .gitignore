@@ -1,0 +1,32 @@
+# Build output
+/dist
+/tmp
+/out-tsc
+
+# Node dependencies
+**/node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Package manager
+/.pnp
+.pnp.js
+
+# IDEs and editors
+.vscode/*
+.idea/
+*.iml
+
+# Environment files
+.env
+
+# Claude/AI notes
+CLAUDE.md
+
+# Python artifacts (just in case)
+__pycache__/
+*.pyc
+
+# macOS system files
+.DS_Store

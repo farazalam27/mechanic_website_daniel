@@ -1,0 +1,49 @@
+.site-header {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.contact-bar {
+  color: white;
+}
+
+.contact-bar a {
+  color: white;
+  text-decoration: none;
+}
+
+.contact-bar a:hover {
+  text-decoration: underline;
+}
+
+.phone-number {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.brand-text {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--primary-color);
+}
+
+/* Active nav link styling */
+.navbar .nav-link.active {
+  color: var(--secondary-color) !important;
+  font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .phone-number {
+    font-size: 1rem;
+  }
+  
+  .brand-text {
+    font-size: 1.2rem;
+  }
+}

@@ -1,0 +1,271 @@
+/* Hero Section */
+.admin-hero {
+  background-image: url('/images/admin-hero.jpg');
+  background-size: cover;
+  background-position: center;
+  height: 250px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+}
+
+.admin-hero-content {
+  color: white;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.admin-hero-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.admin-hero-content p {
+  font-size: 1.25rem;
+  margin-bottom: 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Admin Content */
+.admin-content {
+  background-color: var(--light-gray);
+  min-height: 600px;
+}
+
+/* Login Card */
+.login-card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  padding: 2rem;
+}
+
+.login-icon {
+  font-size: 3rem;
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+}
+
+.login-title {
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.login-subtitle {
+  color: var(--dark-gray);
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+/* Date Range Card */
+.date-range-card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.date-range-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Admin Tabs */
+.admin-tabs {
+  display: flex;
+  gap: 1rem;
+}
+
+.tab-button {
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+}
+
+.tab-content {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+}
+
+.tab-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0;
+}
+
+/* Time Slots */
+.time-slots-container {
+  margin-top: 1.5rem;
+}
+
+.date-card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.date-header {
+  background-color: var(--light-gray);
+  padding: 1rem;
+  border-bottom: none;
+}
+
+.date-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0;
+}
+
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  padding: 0.5rem;
+}
+
+.time-slot-item {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.time-slot-item.available {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.time-slot-item.booked {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+.time-slot-time {
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.time-slot-status {
+  text-align: center;
+}
+
+.time-slot-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Appointments Table */
+.appointments-table th {
+  background-color: var(--light-gray);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.appointments-table td {
+  vertical-align: middle;
+}
+
+/* Batch Creation */
+.days-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.day-button {
+  width: 60px;
+}
+
+/* Appointment Details */
+.appointment-details .detail-item {
+  margin-bottom: 1rem;
+}
+
+.appointment-details strong {
+  color: var(--primary-color);
+}
+
+.status-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .time-slots-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-hero {
+    height: 200px;
+  }
+  
+  .admin-hero-content h1 {
+    font-size: 2rem;
+  }
+  
+  .admin-hero-content p {
+    font-size: 1rem;
+  }
+  
+  .admin-tabs {
+    flex-direction: column;
+  }
+  
+  .tab-content {
+    padding: 1.5rem;
+  }
+  
+  .time-slots-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .date-range-card .d-flex {
+    flex-direction: column;
+  }
+  
+  .date-range-card .d-flex > div:last-child {
+    margin-top: 1rem;
+    width: 100%;
+  }
+  
+  .date-range-card .d-flex > div:last-child .d-flex {
+    flex-direction: row;
+  }
+}
