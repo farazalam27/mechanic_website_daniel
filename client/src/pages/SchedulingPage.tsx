@@ -54,6 +54,7 @@ const SchedulingPage: React.FC = () => {
   const [engineType, setEngineType] = useState<string>('');
   const [oilType, setOilType] = useState<string>('');
   const [color, setColor] = useState<string>('');
+  const [vehicleNotes, setVehicleNotes] = useState<string>('');
   const [licensePlate, setLicensePlate] = useState<string>('');
 
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -170,14 +171,15 @@ const SchedulingPage: React.FC = () => {
       if (isNewVehicle) {
         // Create new vehicle
         const newVehicle = {
-          customer: customer?._id,
+          customerPhone: customer?.phoneNumber,
           make,
           modelName,
           year: parseInt(year),
           engineType,
           oilType,
           color: color || undefined,
-          licensePlate: licensePlate || undefined
+          licensePlate: licensePlate || undefined,
+          notes: vehicleNotes || undefined
         };
 
         const response = await vehicleAPI.create(newVehicle);
@@ -277,6 +279,7 @@ const SchedulingPage: React.FC = () => {
     setOilType('');
     setColor('');
     setLicensePlate('');
+    setVehicleNotes('');
     setSelectedDate('');
     setAvailableTimeSlots([]);
     setSelectedTimeSlot('');
@@ -617,6 +620,18 @@ const SchedulingPage: React.FC = () => {
                               </Form.Group>
                             </Col>
                           </Row>
+
+                          <Form.Group className="mb-3">
+                            <Form.Label>Additional Notes (Optional)</Form.Label>
+                            <Form.Control
+                              as="textarea"
+                              rows={2}
+                              value={vehicleNotes}
+                              onChange={(e) => setVehicleNotes(e.target.value)}
+                              disabled={loading}
+                              placeholder="Any special notes about the vehicle (e.g., modifications, special requirements)"
+                            />
+                          </Form.Group>
 
                           <div className="d-flex justify-content-between mt-4">
                             <Button 

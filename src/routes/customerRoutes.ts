@@ -78,7 +78,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     }
     
     // Check if customer has vehicles
-    const vehicles = await Vehicle.find({ customer: req.params.id });
+    const vehicles = await Vehicle.find({ customerPhone: customer.phoneNumber });
     if (vehicles.length > 0) {
       return res.status(400).json({ 
         message: 'Cannot delete customer with associated vehicles. Delete vehicles first.' 
@@ -92,10 +92,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Get all vehicles for a customer
-router.get('/:id/vehicles', async (req: Request, res: Response) => {
+// Get all vehicles for a customer by phone number
+router.get('/phone/:phoneNumber/vehicles', async (req: Request, res: Response) => {
   try {
-    const vehicles = await Vehicle.find({ customer: req.params.id });
+    const vehicles = await Vehicle.find({ customerPhone: req.params.phoneNumber });
     res.status(200).json(vehicles);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching vehicles', error });

@@ -7,7 +7,7 @@
 
 .service-card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 15px 30px rgba(15, 23, 42, 0.2);
 }
 
 .service-image-container {
@@ -59,10 +59,10 @@
 }
 
 .service-button:hover {
-  background-color: var(--secondary-color);
-  border-color: var(--secondary-color);
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
   transform: translateY(-3px);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(30, 58, 138, 0.3);
 }
 
 /* Responsive adjustments */

@@ -3,7 +3,7 @@ import { ICustomer } from './Customer';
 
 // Interface for Vehicle document
 export interface IVehicle extends Document {
-  customer: ICustomer['_id'];
+  customerPhone: string;
   make: string;
   modelName: string;
   year: number;
@@ -21,10 +21,10 @@ export interface IVehicle extends Document {
 // Schema for Vehicle
 const VehicleSchema: Schema = new Schema(
   {
-    customer: {
-      type: Schema.Types.ObjectId,
-      ref: 'Customer',
-      required: [true, 'Customer reference is required']
+    customerPhone: {
+      type: String,
+      required: [true, 'Customer phone number is required'],
+      trim: true
     },
     make: {
       type: String,

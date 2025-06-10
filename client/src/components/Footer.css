@@ -1,15 +1,23 @@
 .site-footer {
-  background-color: var(--dark-gray);
+  background-color: var(--darker-gray);
   color: white;
 }
 
 .footer-main {
-  background-color: var(--dark-gray);
+  background-color: var(--darker-gray);
 }
 
-.footer-bottom {
-  background-color: #222;
+.copyright-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1rem;
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.copyright-section p {
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
+  margin-bottom: 0;
 }
 
 .footer-heading {
@@ -24,7 +32,8 @@
   content: '';
   position: absolute;
   bottom: 0;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 50px;
   height: 3px;
   background-color: var(--secondary-color);
@@ -38,24 +47,27 @@
 .social-links {
   display: flex;
   gap: 15px;
+  justify-content: center;
 }
 
 .social-link {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--primary-color);
   color: white;
   transition: all 0.3s ease;
+  font-size: 1.2rem;
 }
 
 .social-link:hover {
-  background-color: var(--secondary-color);
+  background-color: var(--primary-light);
   color: white;
   transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.4);
 }
 
 .footer-contact-list {
@@ -66,25 +78,27 @@
 
 .footer-contact-list li {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 15px;
-  color: #ccc;
+  color: white;
+  text-align: center;
 }
 
 .contact-icon {
   margin-right: 10px;
-  margin-top: 4px;
-  color: var(--secondary-color);
+  color: var(--primary-color);
+  font-size: 1.1rem;
 }
 
 .footer-contact-list a {
-  color: #ccc;
+  color: white;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .footer-contact-list a:hover {
-  color: white;
+  color: var(--primary-color);
 }
 
 .footer-links {

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { FaPhone, FaOilCan, FaTools, FaCar } from 'react-icons/fa';
+import { FaPhone, FaOilCan, FaTools, FaCar, FaCalendarAlt } from 'react-icons/fa';
 import './HomePage.css';
 
-const PHONE_NUMBER = "+1 (555) 123-4567"; // Replace with Daniel's actual number
+const PHONE_NUMBER = "+1 (571) 594-8526";
 
 const HomePage: React.FC = () => {
   return (
@@ -13,9 +13,19 @@ const HomePage: React.FC = () => {
         <div className="hero-content">
           <h1>Expert Auto Repair & Maintenance</h1>
           <p>Professional service you can trust</p>
-          <div className="phone-number">
-            <FaPhone />
-            <a href={`tel:${PHONE_NUMBER}`}>{PHONE_NUMBER}</a>
+          <div className="hero-actions">
+            <div className="phone-action">
+              <Button variant="outline-light" size="lg" href={`tel:${PHONE_NUMBER}`} className="phone-button">
+                <FaPhone className="me-2" />
+                Call {PHONE_NUMBER}
+              </Button>
+            </div>
+            <div className="schedule-action">
+              <Button variant="secondary" size="lg" href="/schedule" className="schedule-button">
+                <FaCalendarAlt className="me-2" />
+                Schedule Service
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -68,20 +78,6 @@ const HomePage: React.FC = () => {
         </Container>
       </section>
 
-      {/* Schedule Section */}
-      <section className="schedule-section">
-        <Container>
-          <h2 className="section-title">Schedule Your Service</h2>
-          <p className="text-center">
-            Call us or use our online scheduling system to book your appointment
-          </p>
-          <div className="text-center mt-4">
-            <Button variant="primary" size="lg" href="/schedule">
-              Schedule Now
-            </Button>
-          </div>
-        </Container>
-      </section>
     </div>
   );
 };

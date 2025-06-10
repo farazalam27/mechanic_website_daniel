@@ -6,27 +6,10 @@ import './Header.css';
 
 const Header: React.FC = () => {
   // This would typically come from a configuration or environment variable
-  const phoneNumber = "555-123-4567";
+  const phoneNumber = "+1(571)594-8526";
   
   return (
     <header className="site-header">
-      {/* Top bar with phone number */}
-      <div className="contact-bar sporty-gradient">
-        <Container>
-          <div className="d-flex justify-content-between align-items-center py-2">
-            <div className="contact-info">
-              <FaPhone className="me-2" />
-              <span className="phone-number">Call us: <a href={`tel:${phoneNumber}`}>{phoneNumber}</a></span>
-            </div>
-            <div>
-              <Link to="/schedule" className="btn btn-outline-light btn-sm">
-                <FaCalendarAlt className="me-1" /> Schedule Service
-              </Link>
-            </div>
-          </div>
-        </Container>
-      </div>
-      
       {/* Main navigation */}
       <Navbar bg="light" expand="lg" className="py-3">
         <Container>

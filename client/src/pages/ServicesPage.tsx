@@ -23,7 +23,7 @@ interface ServiceItemProps {
 
 const ServiceItem: React.FC<ServiceItemProps> = ({ title, description, icon, features }) => {
   return (
-    <Card className="service-item mb-4 sporty-card">
+    <Card className="service-item mb-4 professional-card">
       <Card.Body>
         <div className="service-icon-container">
           {icon}
@@ -60,7 +60,7 @@ const ServicesPage: React.FC = () => {
     },
     {
       title: "Repairs & Diagnostics",
-      description: "Our expert technicians can diagnose and fix any issues with your vehicle.",
+      description: "Our expert technicians can diagnose and fix any issues with your vehicle efficiently.",
       icon: <FaTools />,
       features: [
         "Computer diagnostics",
@@ -96,7 +96,7 @@ const ServicesPage: React.FC = () => {
     },
     {
       title: "Preventative Maintenance",
-      description: "Regular maintenance helps prevent costly repairs and extends your vehicle's life.",
+      description: "Regular maintenance helps prevent costly repairs and extends your vehicle's lifespan.",
       icon: <FaCogs />,
       features: [
         "Scheduled maintenance packages",
@@ -108,7 +108,7 @@ const ServicesPage: React.FC = () => {
     },
     {
       title: "Air Conditioning Service",
-      description: "Stay comfortable year-round with our A/C and heating system services.",
+      description: "Stay comfortable year-round with our comprehensive A/C and heating system services.",
       icon: <FaSnowflake />,
       features: [
         "A/C system inspection",
@@ -132,7 +132,7 @@ const ServicesPage: React.FC = () => {
     },
     {
       title: "Brake Service",
-      description: "Ensure your safety with our comprehensive brake system services.",
+      description: "Ensure your safety with our comprehensive brake system inspection and repair services.",
       icon: <FaWrench />,
       features: [
         "Brake pad/shoe replacement",
@@ -163,8 +163,8 @@ const ServicesPage: React.FC = () => {
         <div className="services-hero-overlay">
           <Container>
             <div className="services-hero-content">
-              <h1>Our Services</h1>
-              <p>Professional auto repair and maintenance services for all makes and models</p>
+              <h1>Comprehensive Auto Services</h1>
+              <p>At Daniel's Mechanic Shop, we offer a wide range of services to keep your vehicle running at its best. From routine maintenance to complex repairs, our experienced technicians have you covered.</p>
             </div>
           </Container>
         </div>
@@ -173,14 +173,6 @@ const ServicesPage: React.FC = () => {
       {/* Services Overview */}
       <section className="services-overview py-5">
         <Container>
-          <div className="text-center mb-5">
-            <h2 className="section-title">Comprehensive Auto Services</h2>
-            <p className="section-subtitle">
-              At Daniel's Mechanic Shop, we offer a wide range of services to keep your vehicle running at its best.
-              From routine maintenance to complex repairs, our experienced technicians have you covered.
-            </p>
-          </div>
-
           <Row>
             {services.map((service, index) => (
               <Col md={6} lg={4} key={index}>
@@ -191,24 +183,6 @@ const ServicesPage: React.FC = () => {
         </Container>
       </section>
 
-      {/* Call to Action */}
-      <section className="services-cta py-5 sporty-gradient">
-        <Container>
-          <Row className="justify-content-center">
-            <Col md={10} lg={8} className="text-center">
-              <h2 className="cta-title">Ready to Get Started?</h2>
-              <p className="cta-text">
-                Schedule an appointment today and experience our professional auto care services.
-              </p>
-              <Link to="/schedule">
-                <Button variant="light" size="lg" className="cta-button">
-                  Schedule Now
-                </Button>
-              </Link>
-            </Col>
-          </Row>
-        </Container>
-      </section>
     </div>
   );
 };
