@@ -1,7 +1,5 @@
 {
   "install": "npm install",
-  "start": "npm run build:full && npm start",
-  "watch": {
-    "throttle": 1000
-  }
+  "start": "npm start",
+  "build": "npm run build:full"
 }

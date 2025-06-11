@@ -2,13 +2,8 @@
 # exit on error
 set -o errexit
 
-# Install dependencies
+# Install all dependencies (including client via postinstall)
 npm install
 
-# Build backend
-npm run build
-
-# Install and build frontend
-cd client
-npm install
-npm run build
+# Build everything
+npm run build:full
