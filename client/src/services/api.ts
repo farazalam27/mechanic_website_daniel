@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+const BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -60,7 +60,7 @@ export const appointmentAPI = {
     return response.data;
   },
   getByCustomerPhone: async (phoneNumber: string) => {
-    const response = await api.get(`/appointments/customer-phone/${phoneNumber}`);
+    const response = await api.get(`/appointments/customer/phone/${phoneNumber}`);
     return response.data;
   },
   getByDateRange: async (startDate: string, endDate: string) => {

@@ -1,235 +1,271 @@
-# Daniel's Mechanic Shop Website
+# Daniel's Mechanic Shop Management System
 
-> **IMPORTANT NOTICE**: This application is currently configured for **frontend-only mode** with mock data. The backend is disabled. To run the application, use `./run-frontend.sh` or `npm run frontend:only`. See the [Frontend-Only Mode](#frontend-only-mode-with-mock-data) section for details.
+A full-stack web application for managing a mechanic shop's operations, including customer management, vehicle tracking, appointment scheduling, and service management.
 
-A full-stack web application for a mechanic shop, featuring customer management, vehicle tracking, and appointment scheduling.
+## Features
 
-## Project Structure
+### Customer Portal
+- **Phone Number Login**: Customers can access their dashboard using just their phone number
+- **Vehicle Management**: Add, edit, and delete vehicles with detailed specifications
+- **Appointment Booking**: Schedule service appointments with real-time availability
+- **Service History**: View past and upcoming appointments
 
-This project consists of two main parts:
-- **Backend**: Node.js with Express and TypeScript
-- **Frontend**: React with TypeScript and Bootstrap
+### Admin Dashboard
+- **Customer Management**: View and manage all customer information
+- **Appointment Overview**: See all scheduled appointments with filtering options
+- **Time Slot Management**: Create and manage available appointment slots
 
-## Installation and Setup
+### Key Features
+- 📱 Mobile-responsive design
+- 🔐 Secure customer authentication via phone number
+- 📅 Real-time appointment scheduling
+- 🚗 Comprehensive vehicle tracking
+- 📊 Service history and management
+
+## Tech Stack
+
+### Frontend
+- **React** with TypeScript
+- **React Bootstrap** for UI components
+- **React Router** for navigation
+- **Axios** for API calls
+- **React Icons** for iconography
+
+### Backend
+- **Node.js** with Express
+- **TypeScript** for type safety
+- **MongoDB** with Mongoose ODM
+- **RESTful API** architecture
+
+## Getting Started
 
 ### Prerequisites
-
 - Node.js (v14 or higher)
-- npm (v6 or higher)
-- MongoDB (local installation or MongoDB Atlas account)
+- npm or yarn
+- MongoDB (local or MongoDB Atlas account)
 
-### Setting Up the Project
+### Installation
 
-#### 1. Install Backend Dependencies
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/farazalam27/mechanic_website_daniel.git
+   cd mechanic_website_daniel
+   ```
 
-Yes, you do need to run `npm install` to set up the project. This command installs all the dependencies listed in the package.json file. From the root directory of the project, run:
+2. **Install dependencies**
+   ```bash
+   # Install backend dependencies
+   npm install
 
-```bash
-npm install
-```
+   # Install frontend dependencies
+   cd client
+   npm install
+   cd ..
+   ```
 
-This will install all the backend dependencies like Express, Mongoose, TypeScript, etc.
+3. **Set up environment variables**
+   Create a `.env` file in the root directory:
+   ```env
+   PORT=5001
+   MONGO_URI=mongodb://localhost:27017/daniel_mechanic
+   NODE_ENV=development
+   ```
+   
+   For MongoDB Atlas (recommended):
+   ```env
+   PORT=5001
+   MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/daniel_mechanic
+   NODE_ENV=development
+   ```
 
-#### 2. Install Frontend Dependencies
+4. **Initialize the database**
+   ```bash
+   npm run init-db
+   ```
+   This will create sample data including customers, vehicles, and available time slots.
 
-Next, navigate to the client directory and install the frontend dependencies:
+### Running the Application
 
-```bash
-cd client
-npm install
-```
-
-This will install React, React Router, Bootstrap, and other frontend dependencies.
-
-#### 3. Configure Environment Variables
-
-Create a `.env` file in the root directory with the following variables:
-
-```
-PORT=5000
-MONGO_URI=mongodb://localhost:27017/daniel_mechanic
-NODE_ENV=development
-```
-
-Adjust the `MONGO_URI` if you're using MongoDB Atlas or a different configuration.
-
-## Running the Application
-
-### Development Mode
-
-To run both the backend and frontend in development mode, use the following command from the root directory:
-
+**Development Mode (Full Stack)**
 ```bash
 npm run dev:full
 ```
+This starts both the backend server (port 5001) and frontend development server (port 3000).
 
-This will start:
-- The backend server on http://localhost:5000
-- The frontend development server on http://localhost:3000
-
-### Running Backend Only
-
+**Backend Only**
 ```bash
 npm run dev
 ```
 
-### Running Frontend Only
-
-#### Standard Mode (Requires Backend)
-
-```bash
-cd client
-npm start
-```
-
-#### Frontend-Only Mode with Mock Data
-
-This mode allows you to run and demonstrate the frontend without needing to set up the backend or database. All API calls use mock data instead of real data from the server.
-
-**Option 1: Using the convenience script (recommended)**
-
-```bash
-./run-frontend.sh
-```
-
-This script will:
-- Check if npm is installed
-- Install frontend dependencies if needed
-- Start the frontend server with mock data
-
-**Option 2: Using npm directly**
-
+**Frontend Only**
 ```bash
 npm run frontend:only
 ```
 
-This is useful for:
-- Demonstrating the UI without backend setup
-- Frontend development without backend dependencies
-- Quick demos of the application's features
+### Default Test Accounts
 
-**Note**: In this mode, all data is mocked and changes will not persist between sessions.
+After running the database initialization, you can log in with these phone numbers:
+- (555) 123-4567 - John Smith
+- (555) 987-6543 - Sarah Johnson
+- (555) 555-5555 - Mike Davis
+- (555) 246-8013 - Robert Williams
+- (555) 357-1590 - Jennifer Brown
+- (555) 468-2470 - David Jones
+
+## Project Structure
+
+```
+mechanic_website_daniel/
+├── src/                    # Backend source code
+│   ├── models/            # Mongoose models
+│   ├── routes/            # Express routes
+│   └── scripts/           # Database scripts
+├── client/                # Frontend React app
+│   ├── src/
+│   │   ├── components/    # Reusable components
+│   │   ├── pages/        # Page components
+│   │   ├── services/     # API services
+│   │   └── assets/       # Images and static files
+│   └── public/           # Public assets
+└── README.md
+```
+
+## API Endpoints
+
+### Customers
+- `GET /api/customers` - Get all customers
+- `GET /api/customers/phone/:phoneNumber` - Get customer by phone
+- `POST /api/customers` - Create new customer
+- `PUT /api/customers/:id` - Update customer
+- `DELETE /api/customers/:id` - Delete customer
+
+### Vehicles
+- `GET /api/vehicles` - Get all vehicles
+- `GET /api/vehicles/customer/phone/:phoneNumber` - Get vehicles by customer phone
+- `POST /api/vehicles` - Create new vehicle
+- `PUT /api/vehicles/:id` - Update vehicle
+- `DELETE /api/vehicles/:id` - Delete vehicle
+
+### Appointments
+- `GET /api/appointments` - Get all appointments
+- `GET /api/appointments/customer/phone/:phoneNumber` - Get appointments by customer phone
+- `POST /api/appointments` - Create new appointment
+- `PUT /api/appointments/:id` - Update appointment
+- `DELETE /api/appointments/:id` - Delete appointment
+
+### Time Slots
+- `GET /api/time-slots` - Get available time slots
+- `POST /api/time-slots` - Create time slot
+- `POST /api/time-slots/batch` - Create multiple time slots
+
+## Preparing for Deployment
+
+### Before Pushing to GitHub
+
+1. **Environment Variables**: Never commit `.env` files. Make sure `.env` is in your `.gitignore`
+
+2. **Create `.env.example`**: Create a template for others to use:
+   ```bash
+   PORT=5001
+   MONGO_URI=your_mongodb_connection_string
+   NODE_ENV=development
+   ```
+
+3. **Clean up test files**: Remove any temporary test scripts
+
+### Deployment Options
+
+#### Option 1: Deploy to Vercel (Frontend) + Render (Backend)
+
+**Backend on Render:**
+1. Push your code to GitHub
+2. Sign up at [render.com](https://render.com)
+3. Create a new Web Service
+4. Connect your GitHub repository
+5. Configure:
+   - Build Command: `npm install && npm run build`
+   - Start Command: `npm start`
+   - Add environment variables (PORT, MONGO_URI)
+
+**Frontend on Vercel:**
+1. Install Vercel CLI: `npm i -g vercel`
+2. In the client directory: 
+   ```bash
+   cd client
+   vercel
+   ```
+3. Follow the prompts
+4. Add environment variable: `REACT_APP_API_URL` = your Render backend URL
+
+#### Option 2: Deploy to Heroku (Full Stack)
+
+1. Install Heroku CLI
+2. Create a `Procfile` in root:
+   ```
+   web: node dist/index.js
+   ```
+
+3. Create Heroku app:
+   ```bash
+   heroku create daniels-mechanic-shop
+   heroku addons:create mongolab:sandbox
+   git push heroku main
+   ```
+
+#### Option 3: Deploy to Railway
+
+1. Push to GitHub
+2. Sign up at [railway.app](https://railway.app)
+3. Create new project from GitHub repo
+4. Add MongoDB plugin
+5. Deploy
+
+### Demo Mode
+
+For client demonstrations without full deployment:
+
+1. Use the frontend-only mode with mock data:
+   ```bash
+   npm run frontend:only
+   ```
+
+2. Deploy just the frontend to Vercel/Netlify for a quick demo
+3. The mock API will provide realistic data for demonstrations
 
 ## Building for Production
 
 ### Build Backend
-
 ```bash
 npm run build
 ```
 
 ### Build Frontend
-
 ```bash
 cd client
 npm run build
 ```
 
 ### Run Production Build
-
 ```bash
 npm start
 ```
 
-## Features
+## Contributing
 
-- Customer management
-- Vehicle tracking
-- Appointment scheduling
-- Admin dashboard for managing time slots
-- Responsive design for all devices
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## Technologies Used
+## License
 
-- **Backend**:
-  - Node.js
-  - Express.js
-  - TypeScript
-  - MongoDB with Mongoose
-  - RESTful API
+This project is licensed under the MIT License.
 
-- **Frontend**:
-  - React
-  - TypeScript
-  - React Bootstrap
-  - React Router
-  - Axios for API requests
+## Contact
 
-## Frontend-Only Mode Implementation
+For questions or support, please contact the development team.
 
-The application has been configured to run in frontend-only mode with mock data. The following changes were made:
+---
 
-1. **Backend Code**: The backend code in `src/index.ts` has been commented out and replaced with a message indicating that the backend is disabled.
-
-2. **API Service**: A new file `client/src/services/mockApi.ts` has been created with mock implementations of all API endpoints. The original `api.ts` file now imports and re-exports these mock implementations.
-
-3. **Scripts**: A new npm script `frontend:only` has been added to `package.json` to run only the frontend.
-
-4. **Convenience Script**: A shell script `run-frontend.sh` has been created to make it easier to run the frontend-only mode.
-
-### Reverting to Full-Stack Mode
-
-If you want to revert back to the full-stack mode with a real backend:
-
-1. Uncomment the backend code in `src/index.ts` (remove the comment markers `/*` and `*/`).
-
-2. Restore the original API service by replacing the content of `client/src/services/api.ts` with:
-
-```typescript
-import axios from 'axios';
-
-// Create an axios instance with default config
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
-
-// Customer API
-export const customerAPI = {
-  getByPhone: (phoneNumber: string) => api.get(`/customers/phone/${phoneNumber}`),
-  create: (customerData: any) => api.post('/customers', customerData),
-  update: (id: string, customerData: any) => api.put(`/customers/${id}`, customerData),
-  getVehicles: (customerId: string) => api.get(`/customers/${customerId}/vehicles`)
-};
-
-// Vehicle API
-export const vehicleAPI = {
-  getByCustomerPhone: (phoneNumber: string) => api.get(`/vehicles/customer/phone/${phoneNumber}`),
-  create: (vehicleData: any) => api.post('/vehicles', vehicleData),
-  update: (id: string, vehicleData: any) => api.put(`/vehicles/${id}`, vehicleData),
-  delete: (id: string) => api.delete(`/vehicles/${id}`)
-};
-
-// Appointment API
-export const appointmentAPI = {
-  getByCustomerPhone: (phoneNumber: string) => api.get(`/appointments/customer/phone/${phoneNumber}`),
-  getByDateRange: (startDate: string, endDate: string) => 
-    api.get(`/appointments/date-range/${startDate}/${endDate}`),
-  create: (appointmentData: any) => api.post('/appointments', appointmentData),
-  update: (id: string, appointmentData: any) => api.put(`/appointments/${id}`, appointmentData),
-  updateStatus: (id: string, status: string) => api.patch(`/appointments/${id}/status`, { status }),
-  delete: (id: string) => api.delete(`/appointments/${id}`)
-};
-
-// Available Time Slot API
-export const timeSlotAPI = {
-  getAll: () => api.get('/time-slots'),
-  getByDateRange: (startDate: string, endDate: string) => 
-    api.get(`/time-slots/date-range/${startDate}/${endDate}`),
-  getAvailableByDate: (date: string) => api.get(`/time-slots/available/${date}`),
-  create: (timeSlotData: any) => api.post('/time-slots', timeSlotData),
-  createBatch: (slots: any[]) => api.post('/time-slots/batch', { slots }),
-  update: (id: string, timeSlotData: any) => api.put(`/time-slots/${id}`, timeSlotData),
-  delete: (id: string) => api.delete(`/time-slots/${id}`)
-};
-
-export default api;
-```
-
-3. Run the full-stack application using:
-
-```bash
-npm run dev:full
-```
+Built with ❤️ for Daniel's Mechanic Shop

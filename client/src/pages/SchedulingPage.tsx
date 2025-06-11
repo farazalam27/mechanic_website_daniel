@@ -109,11 +109,11 @@ const SchedulingPage: React.FC = () => {
       const cleanPhoneNumber = phoneNumber.replace(/\D/g, '');
 
       const response = await customerAPI.getByPhone(cleanPhoneNumber);
-      setCustomer(response.data as Customer);
+      setCustomer(response as Customer);
 
       // Get customer's vehicles
       const vehiclesResponse = await vehicleAPI.getByCustomerPhone(cleanPhoneNumber);
-      setVehicles(vehiclesResponse.data as Vehicle[]);
+      setVehicles(vehiclesResponse as Vehicle[]);
 
       // Move to next step
       setStep(2);
@@ -149,7 +149,7 @@ const SchedulingPage: React.FC = () => {
       };
 
       const response = await customerAPI.create(newCustomer);
-      setCustomer(response.data);
+      setCustomer(response);
       setIsNewCustomer(false);
 
       // Move to next step
@@ -183,8 +183,8 @@ const SchedulingPage: React.FC = () => {
         };
 
         const response = await vehicleAPI.create(newVehicle);
-        setVehicles([...vehicles, response.data]);
-        setSelectedVehicle(response.data._id);
+        setVehicles([...vehicles, response]);
+        setSelectedVehicle(response._id);
         setIsNewVehicle(false);
       }
 
@@ -205,7 +205,7 @@ const SchedulingPage: React.FC = () => {
         setLoading(true);
         try {
           const response = await timeSlotAPI.getAvailableByDate(selectedDate);
-          setAvailableTimeSlots(response.data as unknown as TimeSlot[]);
+          setAvailableTimeSlots(response as unknown as TimeSlot[]);
         } catch (err) {
           setError('Failed to load available time slots. Please try again.');
           console.error(err);
@@ -469,7 +469,7 @@ const SchedulingPage: React.FC = () => {
 
                       {!isNewVehicle ? (
                         <Form>
-                          {vehicles.length > 0 ? (
+                          {vehicles && vehicles.length > 0 ? (
                             <Form.Group className="mb-3">
                               <Form.Label>Select Your Vehicle</Form.Label>
                               <Form.Select
@@ -478,7 +478,7 @@ const SchedulingPage: React.FC = () => {
                                 disabled={loading}
                               >
                                 <option value="">Select a vehicle</option>
-                                {vehicles.map((vehicle) => (
+                                {vehicles && vehicles.map((vehicle) => (
                                   <option key={vehicle._id} value={vehicle._id}>
                                     {vehicle.year} {vehicle.make} {vehicle.modelName} {vehicle.color ? `(${vehicle.color})` : ''}
                                   </option>

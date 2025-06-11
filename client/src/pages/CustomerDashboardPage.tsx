@@ -98,15 +98,15 @@ const CustomerDashboardPage: React.FC = () => {
       const cleanPhoneNumber = phoneNumber.replace(/\D/g, '');
 
       const response = await customerAPI.getByPhone(cleanPhoneNumber);
-      setCustomer(response.data as Customer);
+      setCustomer(response as Customer);
 
       // Get customer's vehicles
       const vehiclesResponse = await vehicleAPI.getByCustomerPhone(cleanPhoneNumber);
-      setVehicles(vehiclesResponse.data as Vehicle[]);
+      setVehicles(vehiclesResponse as Vehicle[]);
 
       // Get customer's appointments
       const appointmentsResponse = await appointmentAPI.getByCustomerPhone(cleanPhoneNumber);
-      setAppointments(appointmentsResponse.data as unknown as Appointment[]);
+      setAppointments(appointmentsResponse as unknown as Appointment[]);
 
       setIsAuthenticated(true);
     } catch (err) {
@@ -166,7 +166,7 @@ const CustomerDashboardPage: React.FC = () => {
 
     try {
       const vehicleData = {
-        customer: customer?._id,
+        customerPhone: customer?.phoneNumber,
         make,
         modelName: model,
         year: parseInt(year),
@@ -181,13 +181,13 @@ const CustomerDashboardPage: React.FC = () => {
         const response = await vehicleAPI.update(editingVehicle._id, vehicleData);
 
         // Update vehicles list
-        setVehicles(vehicles.map(v => v._id === editingVehicle._id ? response.data as unknown as Vehicle : v));
+        setVehicles(vehicles.map(v => v._id === editingVehicle._id ? response as unknown as Vehicle : v));
       } else {
         // Add new vehicle
         const response = await vehicleAPI.create(vehicleData);
 
         // Add to vehicles list
-        setVehicles([...vehicles, response.data as unknown as Vehicle]);
+        setVehicles([...vehicles, response as unknown as Vehicle]);
       }
 
       // Close modal
