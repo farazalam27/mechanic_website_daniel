@@ -1,12 +1,10 @@
 import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { Link, NavLink } from 'react-router-dom';
-import { FaPhone, FaCalendarAlt, FaTools } from 'react-icons/fa';
+import { FaTools } from 'react-icons/fa';
 import './Header.css';
 
 const Header: React.FC = () => {
-  // This would typically come from a configuration or environment variable
-  const phoneNumber = "+1(571)594-8526";
   
   return (
     <header className="site-header">

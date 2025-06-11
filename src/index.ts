@@ -27,9 +27,19 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // MongoDB Connection
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/daniel_mechanic';
+
+console.log('Attempting to connect to MongoDB...');
+console.log('MongoDB URI (masked):', MONGO_URI.replace(/\/\/.*@/, '//***:***@'));
+
 mongoose.connect(MONGO_URI)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .then(() => {
+    console.log('✅ MongoDB connected successfully');
+    console.log('Database name:', mongoose.connection.db?.databaseName);
+  })
+  .catch(err => {
+    console.error('❌ MongoDB connection error:', err.message);
+    console.error('Full error:', err);
+  });
 
 // Register routes
 app.use('/api/auth', authRoutes);
@@ -40,7 +50,14 @@ app.use('/api/time-slots', availableTimeSlotRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Server is running' });
+  const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  res.json({ 
+    status: 'ok', 
+    message: 'Server is running',
+    database: dbStatus,
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 // Serve static assets in production

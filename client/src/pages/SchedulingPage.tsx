@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
 import { customerAPI, vehicleAPI, timeSlotAPI, appointmentAPI } from '../services/api';
-import { FaCalendarAlt, FaCar, FaTools, FaUser, FaPhone } from 'react-icons/fa';
+import { FaCalendarAlt, FaCar, FaTools, FaUser } from 'react-icons/fa';
 import './SchedulingPage.css';
 
 // Types
@@ -67,7 +67,7 @@ const SchedulingPage: React.FC = () => {
   const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
-  const [success, setSuccess] = useState<boolean>(false);
+  const [success] = useState<boolean>(false);
 
   // Service types
   const serviceTypes: ServiceType[] = [

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Button, Form, Table, Badge, Alert, Spinner, Modal } from 'react-bootstrap';
 import { timeSlotAPI, appointmentAPI, authAPI, customerAPI, vehicleAPI } from '../services/api';
-import { FaCalendarAlt, FaClock, FaPlus, FaEdit, FaTrash, FaLock, FaUnlock, FaUsers, FaCar, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaPlus, FaEdit, FaTrash, FaLock, FaUsers, FaCar, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import './AdminDashboardPage.css';
 
 // Types
@@ -70,7 +70,7 @@ const AdminDashboardPage: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [selectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [dateRange, setDateRange] = useState<{ startDate: string; endDate: string }>({
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
@@ -167,7 +167,7 @@ const AdminDashboardPage: React.FC = () => {
   };
 
   // Load time slots for the selected date range
-  const loadTimeSlots = async () => {
+  const loadTimeSlots = useCallback(async () => {
     setLoading(true);
     setError('');
 
@@ -183,10 +183,10 @@ const AdminDashboardPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateRange.startDate, dateRange.endDate]);
 
   // Load appointments for the selected date range
-  const loadAppointments = async () => {
+  const loadAppointments = useCallback(async () => {
     setLoading(true);
     setAppointmentError('');
 
@@ -202,7 +202,7 @@ const AdminDashboardPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateRange.startDate, dateRange.endDate]);
 
   // Load customers
   const loadCustomers = async () => {
@@ -636,12 +636,6 @@ const AdminDashboardPage: React.FC = () => {
     }
   };
 
-  // Get day of week
-  const getDayOfWeek = (dateString: string) => {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const date = new Date(dateString);
-    return days[date.getDay()];
-  };
   
   // Calendar helper functions
   const getDaysInMonth = (date: Date) => {
@@ -717,15 +711,6 @@ const AdminDashboardPage: React.FC = () => {
     }
   };
 
-  // Group time slots by date
-  const groupedTimeSlots = (timeSlots || []).reduce((groups, slot) => {
-    const date = slot.date.split('T')[0];
-    if (!groups[date]) {
-      groups[date] = [];
-    }
-    groups[date].push(slot);
-    return groups;
-  }, {} as Record<string, TimeSlot[]>);
 
   return (
     <div className="admin-dashboard-page">
