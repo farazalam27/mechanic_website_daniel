@@ -5,16 +5,20 @@ const mockCustomers = [
   {
     _id: 'cust1',
     firstName: 'John',
-    lastName: 'Doe',
+    lastName: 'Smith',
     phoneNumber: '5551234567',
-    email: 'john.doe@example.com'
+    email: 'john.smith@example.com',
+    createdAt: '2025-01-15T10:00:00Z',
+    updatedAt: '2025-01-15T10:00:00Z'
   },
   {
     _id: 'cust2',
-    firstName: 'Jane',
-    lastName: 'Smith',
+    firstName: 'Sarah',
+    lastName: 'Johnson',
     phoneNumber: '5559876543',
-    email: 'jane.smith@example.com'
+    email: 'sarah.johnson@example.com',
+    createdAt: '2025-01-20T14:30:00Z',
+    updatedAt: '2025-01-20T14:30:00Z'
   }
 ];
 
@@ -22,6 +26,7 @@ const mockVehicles = [
   {
     _id: 'veh1',
     customer: 'cust1',
+    customerPhone: '5551234567',
     make: 'Toyota',
     modelName: 'Camry',
     year: 2020,
@@ -33,6 +38,7 @@ const mockVehicles = [
   {
     _id: 'veh2',
     customer: 'cust1',
+    customerPhone: '5551234567',
     make: 'Honda',
     modelName: 'Civic',
     year: 2018,
@@ -44,6 +50,7 @@ const mockVehicles = [
   {
     _id: 'veh3',
     customer: 'cust2',
+    customerPhone: '5559876543',
     make: 'Ford',
     modelName: 'F-150',
     year: 2019,
@@ -60,28 +67,7 @@ const mockAppointments = [
     customer: {
       _id: 'cust1',
       firstName: 'John',
-      lastName: 'Doe',
-      phoneNumber: '5551234567'
-    },
-    vehicle: {
-      _id: 'veh1',
-      make: 'Toyota',
-      modelName: 'Camry',
-      year: 2020
-    },
-    date: '2023-08-15',
-    startTime: '10:00',
-    endTime: '11:00',
-    serviceType: 'Oil Change',
-    description: 'Regular maintenance',
-    status: 'Completed'
-  },
-  {
-    _id: 'app2',
-    customer: {
-      _id: 'cust1',
-      firstName: 'John',
-      lastName: 'Doe',
+      lastName: 'Smith',
       phoneNumber: '5551234567'
     },
     vehicle: {
@@ -90,19 +76,40 @@ const mockAppointments = [
       modelName: 'Civic',
       year: 2018
     },
-    date: '2023-09-20',
-    startTime: '14:00',
-    endTime: '15:00',
-    serviceType: 'Repair',
-    description: 'Check engine light is on',
+    date: '2025-06-11',
+    startTime: '10:00',
+    endTime: '11:00',
+    serviceType: 'Oil Change',
+    description: 'Regular maintenance',
+    status: 'Scheduled'
+  },
+  {
+    _id: 'app2',
+    customer: {
+      _id: 'cust1',
+      firstName: 'John',
+      lastName: 'Smith',
+      phoneNumber: '5551234567'
+    },
+    vehicle: {
+      _id: 'veh1',
+      make: 'Toyota',
+      modelName: 'Camry',
+      year: 2020
+    },
+    date: '2025-06-12',
+    startTime: '10:00',
+    endTime: '11:00',
+    serviceType: 'Oil Change',
+    description: 'Regular maintenance',
     status: 'Scheduled'
   },
   {
     _id: 'app3',
     customer: {
       _id: 'cust2',
-      firstName: 'Jane',
-      lastName: 'Smith',
+      firstName: 'Sarah',
+      lastName: 'Johnson',
       phoneNumber: '5559876543'
     },
     vehicle: {
@@ -111,9 +118,9 @@ const mockAppointments = [
       modelName: 'F-150',
       year: 2019
     },
-    date: '2023-09-25',
-    startTime: '09:00',
-    endTime: '10:00',
+    date: '2025-06-13',
+    startTime: '14:00',
+    endTime: '15:00',
     serviceType: 'Maintenance',
     description: 'Tire rotation and alignment',
     status: 'Confirmed'
@@ -121,9 +128,10 @@ const mockAppointments = [
 ];
 
 const mockTimeSlots = [
+  // June 11 slots - John Smith has appointment at 10-11am
   {
     _id: 'ts1',
-    date: '2023-09-20',
+    date: '2025-06-11',
     startTime: '09:00',
     endTime: '10:00',
     isBooked: false,
@@ -131,23 +139,40 @@ const mockTimeSlots = [
   },
   {
     _id: 'ts2',
-    date: '2023-09-20',
+    date: '2025-06-11',
     startTime: '10:00',
     endTime: '11:00',
-    isBooked: false,
+    isBooked: true, // John Smith's Honda Civic oil change
     createdBy: 'admin'
   },
   {
     _id: 'ts3',
-    date: '2023-09-20',
+    date: '2025-06-11',
     startTime: '11:00',
     endTime: '12:00',
-    isBooked: true,
+    isBooked: false,
     createdBy: 'admin'
   },
   {
+    _id: 'ts3a',
+    date: '2025-06-11',
+    startTime: '14:00',
+    endTime: '15:00',
+    isBooked: false,
+    createdBy: 'admin'
+  },
+  {
+    _id: 'ts3b',
+    date: '2025-06-11',
+    startTime: '15:00',
+    endTime: '16:00',
+    isBooked: false,
+    createdBy: 'admin'
+  },
+  // June 12 slots - John Smith has appointment at 10-11am
+  {
     _id: 'ts4',
-    date: '2023-09-21',
+    date: '2025-06-12',
     startTime: '09:00',
     endTime: '10:00',
     isBooked: false,
@@ -155,9 +180,74 @@ const mockTimeSlots = [
   },
   {
     _id: 'ts5',
-    date: '2023-09-21',
+    date: '2025-06-12',
     startTime: '10:00',
     endTime: '11:00',
+    isBooked: true, // John Smith's Toyota Camry oil change
+    createdBy: 'admin'
+  },
+  {
+    _id: 'ts6',
+    date: '2025-06-12',
+    startTime: '11:00',
+    endTime: '12:00',
+    isBooked: false,
+    createdBy: 'admin'
+  },
+  {
+    _id: 'ts6a',
+    date: '2025-06-12',
+    startTime: '14:00',
+    endTime: '15:00',
+    isBooked: false,
+    createdBy: 'admin'
+  },
+  {
+    _id: 'ts6b',
+    date: '2025-06-12',
+    startTime: '15:00',
+    endTime: '16:00',
+    isBooked: false,
+    createdBy: 'admin'
+  },
+  // June 13 slots - Sarah Johnson has appointment at 2-3pm (14:00-15:00)
+  {
+    _id: 'ts7',
+    date: '2025-06-13',
+    startTime: '09:00',
+    endTime: '10:00',
+    isBooked: false,
+    createdBy: 'admin'
+  },
+  {
+    _id: 'ts8',
+    date: '2025-06-13',
+    startTime: '10:00',
+    endTime: '11:00',
+    isBooked: false, // This should be available!
+    createdBy: 'admin'
+  },
+  {
+    _id: 'ts9',
+    date: '2025-06-13',
+    startTime: '11:00',
+    endTime: '12:00',
+    isBooked: false,
+    createdBy: 'admin'
+  },
+  {
+    _id: 'ts10',
+    date: '2025-06-13',
+    startTime: '14:00',
+    endTime: '15:00',
+    isBooked: true, // Sarah Johnson's maintenance appointment
+    createdBy: 'admin'
+  },
+  {
+    _id: 'ts11',
+    date: '2025-06-13',
+    startTime: '15:00',
+    endTime: '16:00',
     isBooked: false,
     createdBy: 'admin'
   }
@@ -215,8 +305,16 @@ const api = {
     }
     
     if (url.startsWith('/time-slots/date-range/')) {
-      // In a real implementation, we would filter by date range
-      return { data: mockTimeSlots };
+      const parts = url.split('/');
+      const startDate = parts[parts.length - 2];
+      const endDate = parts[parts.length - 1];
+      
+      const filteredSlots = mockTimeSlots.filter(slot => {
+        const slotDate = slot.date.split('T')[0];
+        return slotDate >= startDate && slotDate <= endDate;
+      });
+      
+      return { data: filteredSlots };
     }
     
     return { data: [] };
@@ -269,6 +367,18 @@ const api = {
       };
       
       mockAppointments.push(newAppointment);
+      
+      // Mark the corresponding time slot as booked
+      const slotIndex = mockTimeSlots.findIndex(slot => 
+        slot.date === data.date && 
+        slot.startTime === data.startTime && 
+        slot.endTime === data.endTime
+      );
+      
+      if (slotIndex !== -1) {
+        mockTimeSlots[slotIndex].isBooked = true;
+      }
+      
       return { data: newAppointment };
     }
     
@@ -297,6 +407,18 @@ const api = {
   
   put: async (url: string, data: any) => {
     await delay(300); // Simulate network delay
+    
+    if (url.startsWith('/customers/')) {
+      const id = url.split('/').pop();
+      const index = mockCustomers.findIndex(c => c._id === id);
+      
+      if (index !== -1) {
+        mockCustomers[index] = { ...mockCustomers[index], ...data };
+        return { data: mockCustomers[index] };
+      }
+      
+      throw { response: { status: 404, data: { message: 'Customer not found' } } };
+    }
     
     if (url.startsWith('/vehicles/')) {
       const id = url.split('/').pop();
@@ -333,7 +455,23 @@ const api = {
       const index = mockAppointments.findIndex(a => a._id === id);
       
       if (index !== -1) {
-        mockAppointments[index] = { ...mockAppointments[index], status: data.status };
+        const appointment = mockAppointments[index];
+        const oldStatus = appointment.status;
+        mockAppointments[index] = { ...appointment, status: data.status };
+        
+        // If appointment is cancelled, free up the time slot
+        if (data.status === 'Cancelled' && oldStatus !== 'Cancelled') {
+          const slotIndex = mockTimeSlots.findIndex(slot => 
+            slot.date === appointment.date && 
+            slot.startTime === appointment.startTime && 
+            slot.endTime === appointment.endTime
+          );
+          
+          if (slotIndex !== -1) {
+            mockTimeSlots[slotIndex].isBooked = false;
+          }
+        }
+        
         return { data: mockAppointments[index] };
       }
       
@@ -345,6 +483,43 @@ const api = {
   
   delete: async (url: string) => {
     await delay(300); // Simulate network delay
+    
+    if (url.startsWith('/appointments/')) {
+      const id = url.split('/').pop();
+      const index = mockAppointments.findIndex(a => a._id === id);
+      
+      if (index !== -1) {
+        const appointment = mockAppointments[index];
+        mockAppointments.splice(index, 1);
+        
+        // Free up the time slot when appointment is deleted
+        const slotIndex = mockTimeSlots.findIndex(slot => 
+          slot.date === appointment.date && 
+          slot.startTime === appointment.startTime && 
+          slot.endTime === appointment.endTime
+        );
+        
+        if (slotIndex !== -1) {
+          mockTimeSlots[slotIndex].isBooked = false;
+        }
+        
+        return { data: { message: 'Appointment deleted successfully' } };
+      }
+      
+      throw { response: { status: 404, data: { message: 'Appointment not found' } } };
+    }
+    
+    if (url.startsWith('/customers/')) {
+      const id = url.split('/').pop();
+      const index = mockCustomers.findIndex(c => c._id === id);
+      
+      if (index !== -1) {
+        mockCustomers.splice(index, 1);
+        return { data: { message: 'Customer deleted successfully' } };
+      }
+      
+      throw { response: { status: 404, data: { message: 'Customer not found' } } };
+    }
     
     if (url.startsWith('/vehicles/')) {
       const id = url.split('/').pop();
@@ -376,14 +551,17 @@ const api = {
 
 // Customer API
 export const customerAPI = {
+  getAll: () => Promise.resolve({ data: mockCustomers }),
   getByPhone: (phoneNumber: string) => api.get(`/customers/phone/${phoneNumber}`),
   create: (customerData: any) => api.post('/customers', customerData),
   update: (id: string, customerData: any) => api.put(`/customers/${id}`, customerData),
+  delete: (id: string) => api.delete(`/customers/${id}`),
   getVehicles: (customerId: string) => api.get(`/customers/${customerId}/vehicles`)
 };
 
 // Vehicle API
 export const vehicleAPI = {
+  getAll: () => Promise.resolve({ data: mockVehicles }),
   getByCustomerPhone: (phoneNumber: string) => api.get(`/vehicles/customer/phone/${phoneNumber}`),
   create: (vehicleData: any) => api.post('/vehicles', vehicleData),
   update: (id: string, vehicleData: any) => api.put(`/vehicles/${id}`, vehicleData),
@@ -411,6 +589,22 @@ export const timeSlotAPI = {
   createBatch: (slots: any[]) => api.post('/time-slots/batch', { slots }),
   update: (id: string, timeSlotData: any) => api.put(`/time-slots/${id}`, timeSlotData),
   delete: (id: string) => api.delete(`/time-slots/${id}`)
+};
+
+// Auth API
+export const authAPI = {
+  adminLogin: async (username: string, password: string) => {
+    await delay(300);
+    // Mock admin credentials
+    if (username === 'admin' && password === 'admin123') {
+      return {
+        success: true,
+        token: 'mock-admin-token-123',
+        user: { id: 'admin1', username: 'admin', role: 'admin' }
+      };
+    }
+    throw { response: { status: 401, data: { message: 'Invalid credentials' } } };
+  }
 };
 
 export default api;

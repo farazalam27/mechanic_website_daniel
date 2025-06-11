@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: daniels-mechanic-shop
+    env: node
+    buildCommand: npm install && npm run build:full
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_USERNAME
+        sync: false # Prompts you to enter in Render dashboard
+      - key: ADMIN_PASSWORD
+        sync: false # Prompts you to enter in Render dashboard
+      - key: MONGO_URI
+        sync: false # Prompts you to enter in Render dashboard

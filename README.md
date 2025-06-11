@@ -104,6 +104,12 @@ npm run frontend:only
 
 ### Default Test Accounts
 
+**Admin Login:**
+- URL: `/admin`
+- Username: `admin`
+- Password: `DanielMech@2025!Secure`
+
+**Customer Login:**
 After running the database initialization, you can log in with these phone numbers:
 - (555) 123-4567 - John Smith
 - (555) 987-6543 - Sarah Johnson

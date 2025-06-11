@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, Table, Badge, Alert, Spinner, Modal } from 'react-bootstrap';
-import { timeSlotAPI, appointmentAPI } from '../services/api';
-import { FaCalendarAlt, FaClock, FaPlus, FaEdit, FaTrash, FaLock, FaUnlock } from 'react-icons/fa';
+import { timeSlotAPI, appointmentAPI, authAPI, customerAPI, vehicleAPI } from '../services/api';
+import { FaCalendarAlt, FaClock, FaPlus, FaEdit, FaTrash, FaLock, FaUnlock, FaUsers, FaCar, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import './AdminDashboardPage.css';
 
 // Types
@@ -36,14 +36,40 @@ interface Appointment {
   };
 }
 
+interface Customer {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  email?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Vehicle {
+  _id: string;
+  customerPhone: string;
+  make: string;
+  modelName: string;
+  year: number;
+  engineType: string;
+  oilType: string;
+  licensePlate?: string;
+  color?: string;
+  notes?: string;
+}
+
 const AdminDashboardPage: React.FC = () => {
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [adminUsername, setAdminUsername] = useState<string>('');
   const [adminPassword, setAdminPassword] = useState<string>('');
 
   // Data states
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [dateRange, setDateRange] = useState<{ startDate: string; endDate: string }>({
     startDate: new Date().toISOString().split('T')[0],
@@ -53,7 +79,8 @@ const AdminDashboardPage: React.FC = () => {
   // UI states
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<string>('timeSlots');
+  const [appointmentError, setAppointmentError] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<string>('customers');
 
   // Modal states
   const [showTimeSlotModal, setShowTimeSlotModal] = useState<boolean>(false);
@@ -63,6 +90,20 @@ const AdminDashboardPage: React.FC = () => {
   const [showBatchModal, setShowBatchModal] = useState<boolean>(false);
   const [showAppointmentModal, setShowAppointmentModal] = useState<boolean>(false);
   const [appointmentDetails, setAppointmentDetails] = useState<Appointment | null>(null);
+  
+  // Customer modal states
+  const [showCustomerModal, setShowCustomerModal] = useState<boolean>(false);
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [showDeleteCustomerModal, setShowDeleteCustomerModal] = useState<boolean>(false);
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+  const [customerHasAppointments, setCustomerHasAppointments] = useState<boolean>(false);
+  
+  // Vehicle modal states
+  const [showVehicleModal, setShowVehicleModal] = useState<boolean>(false);
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [showDeleteVehicleModal, setShowDeleteVehicleModal] = useState<boolean>(false);
+  const [vehicleToDelete, setVehicleToDelete] = useState<Vehicle | null>(null);
+  const [vehicleHasAppointments, setVehicleHasAppointments] = useState<boolean>(false);
 
   // Form states for time slot
   const [slotDate, setSlotDate] = useState<string>('');
@@ -76,17 +117,52 @@ const AdminDashboardPage: React.FC = () => {
   const [batchTimeSlots, setBatchTimeSlots] = useState<{ start: string; end: string }[]>([
     { start: '09:00', end: '10:00' }
   ]);
+  
+  // Form states for customer
+  const [customerFirstName, setCustomerFirstName] = useState<string>('');
+  const [customerLastName, setCustomerLastName] = useState<string>('');
+  const [customerPhone, setCustomerPhone] = useState<string>('');
+  const [customerEmail, setCustomerEmail] = useState<string>('');
+  
+  // Form states for vehicle
+  const [vehicleMake, setVehicleMake] = useState<string>('');
+  const [vehicleModel, setVehicleModel] = useState<string>('');
+  const [vehicleYear, setVehicleYear] = useState<string>('');
+  const [vehicleEngine, setVehicleEngine] = useState<string>('');
+  const [vehicleOilType, setVehicleOilType] = useState<string>('');
+  const [vehicleLicensePlate, setVehicleLicensePlate] = useState<string>('');
+  const [vehicleColor, setVehicleColor] = useState<string>('');
+  const [vehicleCustomerPhone, setVehicleCustomerPhone] = useState<string>('');
+  
+  // Calendar state
+  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>(null);
+  const [showDayModal, setShowDayModal] = useState<boolean>(false);
 
   // Handle admin login
-  const handleLogin = () => {
-    // In a real application, this would be a secure authentication process
-    // For this demo, we're using a simple password check
-    if (adminPassword === 'admin123') {
-      setIsAuthenticated(true);
-      loadTimeSlots();
-      loadAppointments();
-    } else {
-      setError('Invalid password. Please try again.');
+  const handleLogin = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await authAPI.adminLogin(adminUsername, adminPassword);
+      
+      if (response.success) {
+        setIsAuthenticated(true);
+        // Store token for future API calls if needed
+        localStorage.setItem('adminToken', response.token);
+        loadTimeSlots();
+        loadAppointments();
+        loadCustomers();
+        loadVehicles();
+      } else {
+        setError('Invalid credentials. Please try again.');
+      }
+    } catch (err) {
+      setError('Invalid username or password. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -100,7 +176,7 @@ const AdminDashboardPage: React.FC = () => {
         dateRange.startDate,
         dateRange.endDate
       );
-      setTimeSlots(response.data as unknown as TimeSlot[]);
+      setTimeSlots(response as unknown as TimeSlot[]);
     } catch (err) {
       setError('Failed to load time slots. Please try again.');
       console.error(err);
@@ -112,19 +188,39 @@ const AdminDashboardPage: React.FC = () => {
   // Load appointments for the selected date range
   const loadAppointments = async () => {
     setLoading(true);
-    setError('');
+    setAppointmentError('');
 
     try {
       const response = await appointmentAPI.getByDateRange(
         dateRange.startDate,
         dateRange.endDate
       );
-      setAppointments(response.data as unknown as Appointment[]);
+      setAppointments(response as unknown as Appointment[]);
     } catch (err) {
-      setError('Failed to load appointments. Please try again.');
-      console.error(err);
+      setAppointmentError('Failed to load appointments. Please try again.');
+      console.error('Error loading appointments:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Load customers
+  const loadCustomers = async () => {
+    try {
+      const response = await customerAPI.getAll();
+      setCustomers(response as Customer[]);
+    } catch (err) {
+      console.error('Failed to load customers:', err);
+    }
+  };
+
+  // Load vehicles
+  const loadVehicles = async () => {
+    try {
+      const response = await vehicleAPI.getAll();
+      setVehicles(response as Vehicle[]);
+    } catch (err) {
+      console.error('Failed to load vehicles:', err);
     }
   };
 
@@ -135,6 +231,25 @@ const AdminDashboardPage: React.FC = () => {
       loadAppointments();
     }
   }, [dateRange, isAuthenticated]);
+  
+  // Load time slots for current month when calendar month changes
+  useEffect(() => {
+    if (isAuthenticated && activeTab === 'timeSlots') {
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth();
+      const firstDay = new Date(year, month, 1).toISOString().split('T')[0];
+      const lastDay = new Date(year, month + 1, 0).toISOString().split('T')[0];
+      
+      setDateRange({ startDate: firstDay, endDate: lastDay });
+    }
+  }, [currentMonth, activeTab, isAuthenticated]);
+  
+  // Load all data when activeTab changes
+  useEffect(() => {
+    if (isAuthenticated && activeTab === 'appointments') {
+      loadAppointments();
+    }
+  }, [activeTab, isAuthenticated]);
 
   // Open time slot modal for adding or editing
   const openTimeSlotModal = (timeSlot: TimeSlot | null = null) => {
@@ -173,13 +288,13 @@ const AdminDashboardPage: React.FC = () => {
         const response = await timeSlotAPI.update(editingTimeSlot._id, timeSlotData);
 
         // Update time slots list
-        setTimeSlots(timeSlots.map(ts => ts._id === editingTimeSlot._id ? response.data as unknown as TimeSlot : ts));
+        setTimeSlots(timeSlots.map(ts => ts._id === editingTimeSlot._id ? response as unknown as TimeSlot : ts));
       } else {
         // Add new time slot
         const response = await timeSlotAPI.create(timeSlotData);
 
         // Add to time slots list
-        setTimeSlots([...timeSlots, response.data as unknown as TimeSlot]);
+        setTimeSlots([...timeSlots, response as unknown as TimeSlot]);
       }
 
       // Close modal
@@ -303,7 +418,7 @@ const AdminDashboardPage: React.FC = () => {
       const response = await timeSlotAPI.createBatch(slots);
 
       // Add new time slots to the list
-      setTimeSlots([...timeSlots, ...response.data]);
+      setTimeSlots([...timeSlots, ...response]);
 
       // Close modal
       setShowBatchModal(false);
@@ -333,7 +448,7 @@ const AdminDashboardPage: React.FC = () => {
       const response = await appointmentAPI.updateStatus(appointmentId, status);
 
       // Update appointments list
-      setAppointments(appointments.map(a => a._id === appointmentId ? response.data as unknown as Appointment : a));
+      setAppointments(appointments.map(a => a._id === appointmentId ? response as unknown as Appointment : a));
 
       // Close modal
       setShowAppointmentModal(false);
@@ -354,12 +469,234 @@ const AdminDashboardPage: React.FC = () => {
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+  
+  // Customer handlers
+  const openCustomerModal = (customer: Customer | null = null) => {
+    if (customer) {
+      setEditingCustomer(customer);
+      setCustomerFirstName(customer.firstName);
+      setCustomerLastName(customer.lastName);
+      setCustomerPhone(customer.phoneNumber);
+      setCustomerEmail(customer.email || '');
+    } else {
+      setEditingCustomer(null);
+      setCustomerFirstName('');
+      setCustomerLastName('');
+      setCustomerPhone('');
+      setCustomerEmail('');
+    }
+    setShowCustomerModal(true);
+  };
+  
+  const handleSaveCustomer = async () => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      const customerData = {
+        firstName: customerFirstName,
+        lastName: customerLastName,
+        phoneNumber: customerPhone,
+        email: customerEmail || undefined
+      };
+      
+      if (editingCustomer) {
+        const response = await customerAPI.update(editingCustomer._id, customerData);
+        setCustomers(customers.map(c => c._id === editingCustomer._id ? response as Customer : c));
+      } else {
+        const response = await customerAPI.create(customerData);
+        setCustomers([...customers, response as Customer]);
+      }
+      
+      setShowCustomerModal(false);
+      loadCustomers();
+    } catch (err) {
+      setError('Failed to save customer. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const checkCustomerAppointments = async (customer: Customer) => {
+    const customerAppointments = appointments.filter(a => a.customer._id === customer._id);
+    setCustomerHasAppointments(customerAppointments.length > 0);
+    setCustomerToDelete(customer);
+    setShowDeleteCustomerModal(true);
+  };
+  
+  const handleDeleteCustomer = async () => {
+    if (!customerToDelete) return;
+    
+    setLoading(true);
+    setError('');
+    
+    try {
+      await customerAPI.delete(customerToDelete._id);
+      setCustomers(customers.filter(c => c._id !== customerToDelete._id));
+      setShowDeleteCustomerModal(false);
+      loadCustomers();
+      if (customerHasAppointments) {
+        loadAppointments();
+      }
+    } catch (err) {
+      setError('Failed to delete customer. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Vehicle handlers
+  const openVehicleModal = (vehicle: Vehicle | null = null) => {
+    if (vehicle) {
+      setEditingVehicle(vehicle);
+      setVehicleMake(vehicle.make);
+      setVehicleModel(vehicle.modelName);
+      setVehicleYear(vehicle.year.toString());
+      setVehicleEngine(vehicle.engineType);
+      setVehicleOilType(vehicle.oilType);
+      setVehicleLicensePlate(vehicle.licensePlate || '');
+      setVehicleColor(vehicle.color || '');
+      setVehicleCustomerPhone(vehicle.customerPhone);
+    } else {
+      setEditingVehicle(null);
+      setVehicleMake('');
+      setVehicleModel('');
+      setVehicleYear('');
+      setVehicleEngine('');
+      setVehicleOilType('');
+      setVehicleLicensePlate('');
+      setVehicleColor('');
+      setVehicleCustomerPhone('');
+    }
+    setShowVehicleModal(true);
+  };
+  
+  const handleSaveVehicle = async () => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      const vehicleData = {
+        customerPhone: vehicleCustomerPhone,
+        make: vehicleMake,
+        modelName: vehicleModel,
+        year: parseInt(vehicleYear),
+        engineType: vehicleEngine,
+        oilType: vehicleOilType,
+        licensePlate: vehicleLicensePlate || undefined,
+        color: vehicleColor || undefined
+      };
+      
+      if (editingVehicle) {
+        const response = await vehicleAPI.update(editingVehicle._id, vehicleData);
+        setVehicles(vehicles.map(v => v._id === editingVehicle._id ? response as Vehicle : v));
+      } else {
+        const response = await vehicleAPI.create(vehicleData);
+        setVehicles([...vehicles, response as Vehicle]);
+      }
+      
+      setShowVehicleModal(false);
+      loadVehicles();
+    } catch (err) {
+      setError('Failed to save vehicle. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const checkVehicleAppointments = async (vehicle: Vehicle) => {
+    const vehicleAppointments = appointments.filter(a => a.vehicle._id === vehicle._id);
+    setVehicleHasAppointments(vehicleAppointments.length > 0);
+    setVehicleToDelete(vehicle);
+    setShowDeleteVehicleModal(true);
+  };
+  
+  const handleDeleteVehicle = async () => {
+    if (!vehicleToDelete) return;
+    
+    setLoading(true);
+    setError('');
+    
+    try {
+      await vehicleAPI.delete(vehicleToDelete._id);
+      setVehicles(vehicles.filter(v => v._id !== vehicleToDelete._id));
+      setShowDeleteVehicleModal(false);
+      loadVehicles();
+      if (vehicleHasAppointments) {
+        loadAppointments();
+      }
+    } catch (err) {
+      setError('Failed to delete vehicle. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Get day of week
   const getDayOfWeek = (dateString: string) => {
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const date = new Date(dateString);
     return days[date.getDay()];
+  };
+  
+  // Calendar helper functions
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    
+    const days = [];
+    
+    // Add empty cells for days before month starts
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null);
+    }
+    
+    // Add all days of the month
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(new Date(year, month, i));
+    }
+    
+    return days;
+  };
+  
+  const formatDateForCalendar = (date: Date) => {
+    return date.toISOString().split('T')[0];
+  };
+  
+  const hasAvailableSlots = (dateString: string) => {
+    return timeSlots.some(slot => 
+      slot.date.split('T')[0] === dateString && !slot.isBooked
+    );
+  };
+  
+  const hasBookedSlots = (dateString: string) => {
+    return timeSlots.some(slot => 
+      slot.date.split('T')[0] === dateString && slot.isBooked
+    );
+  };
+  
+  const getSlotsForDate = (dateString: string) => {
+    return timeSlots.filter(slot => slot.date.split('T')[0] === dateString);
+  };
+  
+  const navigateMonth = (direction: number) => {
+    const newMonth = new Date(currentMonth);
+    newMonth.setMonth(newMonth.getMonth() + direction);
+    setCurrentMonth(newMonth);
+  };
+  
+  const handleDayClick = (date: Date) => {
+    const dateString = formatDateForCalendar(date);
+    setSelectedCalendarDate(dateString);
+    setShowDayModal(true);
   };
 
   // Get status badge variant
@@ -381,7 +718,7 @@ const AdminDashboardPage: React.FC = () => {
   };
 
   // Group time slots by date
-  const groupedTimeSlots = timeSlots.reduce((groups, slot) => {
+  const groupedTimeSlots = (timeSlots || []).reduce((groups, slot) => {
     const date = slot.date.split('T')[0];
     if (!groups[date]) {
       groups[date] = [];
@@ -418,13 +755,24 @@ const AdminDashboardPage: React.FC = () => {
                       </div>
                       <h2 className="login-title">Admin Login</h2>
                       <p className="login-subtitle">
-                        Enter your admin password to access the dashboard
+                        Enter your admin credentials to access the dashboard
                       </p>
                     </div>
 
                     {error && <Alert variant="danger">{error}</Alert>}
 
                     <Form>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Username</Form.Label>
+                        <Form.Control
+                          type="text"
+                          value={adminUsername}
+                          onChange={(e) => setAdminUsername(e.target.value)}
+                          placeholder="Enter admin username"
+                          disabled={loading}
+                        />
+                      </Form.Group>
+
                       <Form.Group className="mb-3">
                         <Form.Label>Password</Form.Label>
                         <Form.Control
@@ -440,7 +788,7 @@ const AdminDashboardPage: React.FC = () => {
                         <Button 
                           variant="primary" 
                           onClick={handleLogin}
-                          disabled={loading || !adminPassword}
+                          disabled={loading || !adminUsername || !adminPassword}
                         >
                           {loading ? <Spinner animation="border" size="sm" /> : 'Login'}
                         </Button>
@@ -491,12 +839,20 @@ const AdminDashboardPage: React.FC = () => {
               {/* Tabs */}
               <div className="admin-tabs mb-4">
                 <Button 
-                  variant={activeTab === 'timeSlots' ? 'primary' : 'outline-primary'}
+                  variant={activeTab === 'customers' ? 'primary' : 'outline-primary'}
                   className="tab-button"
-                  onClick={() => setActiveTab('timeSlots')}
+                  onClick={() => setActiveTab('customers')}
                 >
-                  <FaClock className="me-2" />
-                  Time Slots
+                  <FaUsers className="me-2" />
+                  Customers
+                </Button>
+                <Button 
+                  variant={activeTab === 'vehicles' ? 'primary' : 'outline-primary'}
+                  className="tab-button"
+                  onClick={() => setActiveTab('vehicles')}
+                >
+                  <FaCar className="me-2" />
+                  Vehicles
                 </Button>
                 <Button 
                   variant={activeTab === 'appointments' ? 'primary' : 'outline-primary'}
@@ -506,13 +862,140 @@ const AdminDashboardPage: React.FC = () => {
                   <FaCalendarAlt className="me-2" />
                   Appointments
                 </Button>
+                <Button 
+                  variant={activeTab === 'timeSlots' ? 'primary' : 'outline-primary'}
+                  className="tab-button"
+                  onClick={() => setActiveTab('timeSlots')}
+                >
+                  <FaClock className="me-2" />
+                  Time Slots
+                </Button>
               </div>
+
+              {/* Customers Tab */}
+              {activeTab === 'customers' && (
+                <div className="tab-content">
+                  <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h3 className="tab-title">Customer Management</h3>
+                  </div>
+
+                  {loading ? (
+                    <div className="text-center py-5">
+                      <Spinner animation="border" />
+                    </div>
+                  ) : customers.length > 0 ? (
+                    <Table responsive className="customers-table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Phone</th>
+                          <th>Email</th>
+                          <th>Vehicles</th>
+                          <th>Joined</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {customers.map((customer) => {
+                          const customerVehicles = vehicles.filter(v => v.customerPhone === customer.phoneNumber);
+                          return (
+                            <tr key={customer._id}>
+                              <td>{customer.firstName} {customer.lastName}</td>
+                              <td>{customer.phoneNumber}</td>
+                              <td>{customer.email || '-'}</td>
+                              <td>{customerVehicles.length}</td>
+                              <td>{new Date(customer.createdAt).toLocaleDateString()}</td>
+                              <td>
+                                <Button 
+                                  variant="outline-info" 
+                                  size="sm" 
+                                  className="me-2"
+                                  onClick={() => openCustomerModal(customer)}
+                                >
+                                  <FaEdit />
+                                </Button>
+                                <Button 
+                                  variant="outline-danger" 
+                                  size="sm"
+                                  onClick={() => checkCustomerAppointments(customer)}
+                                >
+                                  <FaTrash />
+                                </Button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </Table>
+                  ) : (
+                    <Alert variant="info">No customers found.</Alert>
+                  )}
+                </div>
+              )}
+
+              {/* Vehicles Tab */}
+              {activeTab === 'vehicles' && (
+                <div className="tab-content">
+                  <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h3 className="tab-title">Vehicle Management</h3>
+                  </div>
+
+                  {loading ? (
+                    <div className="text-center py-5">
+                      <Spinner animation="border" />
+                    </div>
+                  ) : vehicles.length > 0 ? (
+                    <Table responsive className="vehicles-table">
+                      <thead>
+                        <tr>
+                          <th>Vehicle</th>
+                          <th>Owner Phone</th>
+                          <th>Engine</th>
+                          <th>Oil Type</th>
+                          <th>License Plate</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {vehicles.map((vehicle) => (
+                          <tr key={vehicle._id}>
+                            <td>{vehicle.year} {vehicle.make} {vehicle.modelName}</td>
+                            <td>{vehicle.customerPhone}</td>
+                            <td>{vehicle.engineType}</td>
+                            <td>{vehicle.oilType}</td>
+                            <td>{vehicle.licensePlate || '-'}</td>
+                            <td>
+                              <Button 
+                                variant="outline-info" 
+                                size="sm" 
+                                className="me-2"
+                                onClick={() => openVehicleModal(vehicle)}
+                              >
+                                <FaEdit />
+                              </Button>
+                              <Button 
+                                variant="outline-danger" 
+                                size="sm"
+                                onClick={() => checkVehicleAppointments(vehicle)}
+                              >
+                                <FaTrash />
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  ) : (
+                    <Alert variant="info">No vehicles found.</Alert>
+                  )}
+                </div>
+              )}
 
               {/* Time Slots Tab */}
               {activeTab === 'timeSlots' && (
                 <div className="tab-content">
                   <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h3 className="tab-title">Available Time Slots</h3>
+                    <h3 className="tab-title">Time Slot Calendar</h3>
                     <div>
                       <Button 
                         variant="outline-primary" 
@@ -538,65 +1021,79 @@ const AdminDashboardPage: React.FC = () => {
                     <div className="text-center py-5">
                       <Spinner animation="border" />
                     </div>
-                  ) : Object.keys(groupedTimeSlots).length > 0 ? (
-                    <div className="time-slots-container">
-                      {Object.entries(groupedTimeSlots)
-                        .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
-                        .map(([date, slots]) => (
-                          <Card key={date} className="date-card mb-4">
-                            <Card.Header className="date-header">
-                              <h4 className="date-title">
-                                {formatDate(date)} ({getDayOfWeek(date)})
-                              </h4>
-                            </Card.Header>
-                            <Card.Body>
-                              <div className="time-slots-grid">
-                                {slots
-                                  .sort((a, b) => a.startTime.localeCompare(b.startTime))
-                                  .map((slot) => (
-                                    <div 
-                                      key={slot._id} 
-                                      className={`time-slot-item ${slot.isBooked ? 'booked' : 'available'}`}
-                                    >
-                                      <div className="time-slot-time">
-                                        {slot.startTime} - {slot.endTime}
-                                      </div>
-                                      <div className="time-slot-status">
-                                        <Badge bg={slot.isBooked ? 'danger' : 'success'}>
-                                          {slot.isBooked ? 'Booked' : 'Available'}
-                                        </Badge>
-                                      </div>
-                                      <div className="time-slot-actions">
-                                        {!slot.isBooked && (
-                                          <>
-                                            <Button 
-                                              variant="outline-primary" 
-                                              size="sm"
-                                              onClick={() => openTimeSlotModal(slot)}
-                                            >
-                                              <FaEdit />
-                                            </Button>
-                                            <Button 
-                                              variant="outline-danger" 
-                                              size="sm"
-                                              onClick={() => openDeleteModal(slot._id)}
-                                            >
-                                              <FaTrash />
-                                            </Button>
-                                          </>
-                                        )}
-                                      </div>
-                                    </div>
-                                  ))}
-                              </div>
-                            </Card.Body>
-                          </Card>
-                        ))}
-                    </div>
                   ) : (
-                    <Alert variant="info">
-                      No time slots found for the selected date range. Add time slots to get started.
-                    </Alert>
+                    <Card className="calendar-card">
+                      <Card.Header className="calendar-header">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <Button 
+                            variant="link" 
+                            onClick={() => navigateMonth(-1)}
+                            className="calendar-nav-btn"
+                          >
+                            <FaChevronLeft />
+                          </Button>
+                          <h4 className="calendar-month-title mb-0">
+                            {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                          </h4>
+                          <Button 
+                            variant="link" 
+                            onClick={() => navigateMonth(1)}
+                            className="calendar-nav-btn"
+                          >
+                            <FaChevronRight />
+                          </Button>
+                        </div>
+                      </Card.Header>
+                      <Card.Body>
+                        <div className="calendar-grid">
+                          <div className="calendar-weekdays">
+                            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                              <div key={day} className="calendar-weekday">{day}</div>
+                            ))}
+                          </div>
+                          <div className="calendar-days">
+                            {getDaysInMonth(currentMonth).map((date, index) => {
+                              if (!date) {
+                                return <div key={`empty-${index}`} className="calendar-day-empty"></div>;
+                              }
+                              
+                              const dateString = formatDateForCalendar(date);
+                              const hasAvailable = hasAvailableSlots(dateString);
+                              const hasBooked = hasBookedSlots(dateString);
+                              const isToday = dateString === new Date().toISOString().split('T')[0];
+                              
+                              return (
+                                <div 
+                                  key={dateString}
+                                  className={`calendar-day ${hasAvailable ? 'has-available' : ''} ${hasBooked ? 'has-booked' : ''} ${isToday ? 'today' : ''}`}
+                                  onClick={() => handleDayClick(date)}
+                                  style={{ cursor: hasAvailable || hasBooked ? 'pointer' : 'default' }}
+                                >
+                                  <div className="calendar-day-number">{date.getDate()}</div>
+                                  {(hasAvailable || hasBooked) && (
+                                    <div className="calendar-day-indicators">
+                                      {hasAvailable && <span className="indicator available"></span>}
+                                      {hasBooked && <span className="indicator booked"></span>}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        
+                        <div className="calendar-legend mt-3">
+                          <div className="legend-item">
+                            <span className="indicator available"></span>
+                            <span>Available Slots</span>
+                          </div>
+                          <div className="legend-item">
+                            <span className="indicator booked"></span>
+                            <span>Booked Slots</span>
+                          </div>
+                        </div>
+                      </Card.Body>
+                    </Card>
                   )}
                 </div>
               )}
@@ -608,7 +1105,7 @@ const AdminDashboardPage: React.FC = () => {
                     <h3 className="tab-title">Scheduled Appointments</h3>
                   </div>
 
-                  {error && <Alert variant="danger">{error}</Alert>}
+                  {appointmentError && <Alert variant="danger">{appointmentError}</Alert>}
 
                   {loading ? (
                     <div className="text-center py-5">
@@ -670,6 +1167,336 @@ const AdminDashboardPage: React.FC = () => {
           )}
         </Container>
       </section>
+
+      {/* Customer Edit Modal */}
+      <Modal show={showCustomerModal} onHide={() => setShowCustomerModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>{editingCustomer ? 'Edit Customer' : 'Add Customer'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>First Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={customerFirstName}
+                    onChange={(e) => setCustomerFirstName(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Last Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={customerLastName}
+                    onChange={(e) => setCustomerLastName(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Phone Number</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Email (Optional)</Form.Label>
+                  <Form.Control
+                    type="email"
+                    value={customerEmail}
+                    onChange={(e) => setCustomerEmail(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowCustomerModal(false)}>
+            Cancel
+          </Button>
+          <Button 
+            variant="primary" 
+            onClick={handleSaveCustomer}
+            disabled={loading || !customerFirstName || !customerLastName || !customerPhone}
+          >
+            {loading ? <Spinner animation="border" size="sm" /> : 'Save Customer'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Customer Delete Confirmation Modal */}
+      <Modal show={showDeleteCustomerModal} onHide={() => setShowDeleteCustomerModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {customerHasAppointments ? (
+            <>
+              <Alert variant="warning">
+                <strong>Warning!</strong> This customer has scheduled appointments. 
+                Deleting this customer will also delete all their appointments.
+              </Alert>
+              <p>Are you sure you want to delete {customerToDelete?.firstName} {customerToDelete?.lastName} and all their appointments?</p>
+            </>
+          ) : (
+            <p>Are you sure you want to delete {customerToDelete?.firstName} {customerToDelete?.lastName}?</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteCustomerModal(false)}>
+            Cancel
+          </Button>
+          <Button 
+            variant="danger" 
+            onClick={handleDeleteCustomer}
+            disabled={loading}
+          >
+            {loading ? <Spinner animation="border" size="sm" /> : 'Delete Customer'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Vehicle Edit Modal */}
+      <Modal show={showVehicleModal} onHide={() => setShowVehicleModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>{editingVehicle ? 'Edit Vehicle' : 'Add Vehicle'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Row>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Make</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={vehicleMake}
+                    onChange={(e) => setVehicleMake(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Model</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={vehicleModel}
+                    onChange={(e) => setVehicleModel(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Year</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={vehicleYear}
+                    onChange={(e) => setVehicleYear(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Engine Type</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={vehicleEngine}
+                    onChange={(e) => setVehicleEngine(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Oil Type</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={vehicleOilType}
+                    onChange={(e) => setVehicleOilType(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Customer Phone</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={vehicleCustomerPhone}
+                    onChange={(e) => setVehicleCustomerPhone(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>License Plate</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={vehicleLicensePlate}
+                    onChange={(e) => setVehicleLicensePlate(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Color</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={vehicleColor}
+                    onChange={(e) => setVehicleColor(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowVehicleModal(false)}>
+            Cancel
+          </Button>
+          <Button 
+            variant="primary" 
+            onClick={handleSaveVehicle}
+            disabled={loading || !vehicleMake || !vehicleModel || !vehicleYear || !vehicleEngine || !vehicleOilType || !vehicleCustomerPhone}
+          >
+            {loading ? <Spinner animation="border" size="sm" /> : 'Save Vehicle'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Vehicle Delete Confirmation Modal */}
+      <Modal show={showDeleteVehicleModal} onHide={() => setShowDeleteVehicleModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {vehicleHasAppointments ? (
+            <>
+              <Alert variant="warning">
+                <strong>Warning!</strong> This vehicle has scheduled appointments. 
+                Deleting this vehicle will also delete all its appointments.
+              </Alert>
+              <p>Are you sure you want to delete {vehicleToDelete?.year} {vehicleToDelete?.make} {vehicleToDelete?.modelName} and all its appointments?</p>
+            </>
+          ) : (
+            <p>Are you sure you want to delete {vehicleToDelete?.year} {vehicleToDelete?.make} {vehicleToDelete?.modelName}?</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteVehicleModal(false)}>
+            Cancel
+          </Button>
+          <Button 
+            variant="danger" 
+            onClick={handleDeleteVehicle}
+            disabled={loading}
+          >
+            {loading ? <Spinner animation="border" size="sm" /> : 'Delete Vehicle'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Day Time Slots Modal */}
+      <Modal show={showDayModal} onHide={() => setShowDayModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>
+            Time Slots for {selectedCalendarDate && formatDate(selectedCalendarDate)}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedCalendarDate && (
+            <div>
+              <div className="time-slots-grid">
+                {getSlotsForDate(selectedCalendarDate)
+                  .sort((a, b) => a.startTime.localeCompare(b.startTime))
+                  .map((slot) => (
+                    <div 
+                      key={slot._id} 
+                      className={`time-slot-item ${slot.isBooked ? 'booked' : 'available'}`}
+                    >
+                      <div className="time-slot-time">
+                        {slot.startTime} - {slot.endTime}
+                      </div>
+                      <div className="time-slot-status">
+                        <Badge bg={slot.isBooked ? 'danger' : 'success'}>
+                          {slot.isBooked ? 'Booked' : 'Available'}
+                        </Badge>
+                      </div>
+                      <div className="time-slot-actions">
+                        {!slot.isBooked && (
+                          <>
+                            <Button 
+                              variant="outline-primary" 
+                              size="sm"
+                              onClick={() => {
+                                setShowDayModal(false);
+                                openTimeSlotModal(slot);
+                              }}
+                            >
+                              <FaEdit />
+                            </Button>
+                            <Button 
+                              variant="outline-danger" 
+                              size="sm"
+                              onClick={() => {
+                                setShowDayModal(false);
+                                openDeleteModal(slot._id);
+                              }}
+                            >
+                              <FaTrash />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+              {getSlotsForDate(selectedCalendarDate).length === 0 && (
+                <Alert variant="info">
+                  No time slots for this date. Click "Add Time Slot" to create one.
+                </Alert>
+              )}
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button 
+            variant="primary" 
+            onClick={() => {
+              setSlotDate(selectedCalendarDate || '');
+              setShowDayModal(false);
+              openTimeSlotModal();
+            }}
+          >
+            <FaPlus className="me-2" />
+            Add Time Slot for This Day
+          </Button>
+          <Button variant="secondary" onClick={() => setShowDayModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* Time Slot Modal */}
       <Modal show={showTimeSlotModal} onHide={() => setShowTimeSlotModal(false)}>

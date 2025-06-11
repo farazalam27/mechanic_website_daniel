@@ -12,28 +12,11 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const appointments = await Appointment.find()
       .populate('customer', 'firstName lastName phoneNumber')
-      .populate('vehicle', 'make model year')
+      .populate('vehicle', 'make modelName year')
       .sort({ date: 1, startTime: 1 });
     res.status(200).json(appointments);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching appointments', error });
-  }
-});
-
-// Get appointment by ID
-router.get('/:id', async (req: Request, res: Response) => {
-  try {
-    const appointment = await Appointment.findById(req.params.id)
-      .populate('customer', 'firstName lastName phoneNumber')
-      .populate('vehicle', 'make model year engineType oilType');
-    
-    if (!appointment) {
-      return res.status(404).json({ message: 'Appointment not found' });
-    }
-    
-    res.status(200).json(appointment);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching appointment', error });
   }
 });
 
@@ -49,7 +32,7 @@ router.get('/date-range', async (req: Request, res: Response) => {
       }
     })
       .populate('customer', 'firstName lastName phoneNumber')
-      .populate('vehicle', 'make model year')
+      .populate('vehicle', 'make modelName year')
       .sort({ date: 1, startTime: 1 });
     
     res.status(200).json(appointments);
@@ -70,7 +53,7 @@ router.get('/date-range/:startDate/:endDate', async (req: Request, res: Response
       }
     })
       .populate('customer', 'firstName lastName phoneNumber')
-      .populate('vehicle', 'make model year')
+      .populate('vehicle', 'make modelName year')
       .sort({ date: 1, startTime: 1 });
     
     res.status(200).json(appointments);
@@ -88,12 +71,29 @@ router.get('/customer/phone/:phoneNumber', async (req: Request, res: Response) =
     }
     
     const appointments = await Appointment.find({ customer: customer._id })
-      .populate('vehicle', 'make model year')
+      .populate('vehicle', 'make modelName year')
       .sort({ date: -1, startTime: 1 });
     
     res.status(200).json(appointments);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching appointments', error });
+  }
+});
+
+// Get appointment by ID
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const appointment = await Appointment.findById(req.params.id)
+      .populate('customer', 'firstName lastName phoneNumber')
+      .populate('vehicle', 'make model year engineType oilType');
+    
+    if (!appointment) {
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
+    
+    res.status(200).json(appointment);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching appointment', error });
   }
 });
 
@@ -252,7 +252,7 @@ router.patch('/:id/status', async (req: Request, res: Response) => {
       { new: true, runValidators: true }
     )
       .populate('customer', 'firstName lastName phoneNumber')
-      .populate('vehicle', 'make model year');
+      .populate('vehicle', 'make modelName year');
     
     if (!updatedAppointment) {
       return res.status(404).json({ message: 'Appointment not found' });

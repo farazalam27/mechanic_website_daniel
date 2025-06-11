@@ -11,6 +11,10 @@ const api = axios.create({
 
 // Customer API
 export const customerAPI = {
+  getAll: async () => {
+    const response = await api.get('/customers');
+    return response.data;
+  },
   getByPhone: async (phoneNumber: string) => {
     const response = await api.get(`/customers/phone/${phoneNumber}`);
     return response.data;
@@ -31,6 +35,10 @@ export const customerAPI = {
 
 // Vehicle API
 export const vehicleAPI = {
+  getAll: async () => {
+    const response = await api.get('/vehicles');
+    return response.data;
+  },
   getByCustomerId: async (customerId: string) => {
     const response = await api.get(`/vehicles/customer/${customerId}`);
     return response.data;
@@ -117,6 +125,14 @@ export const timeSlotAPI = {
   },
   createBatch: async (batchData: any) => {
     const response = await api.post('/time-slots/batch', batchData);
+    return response.data;
+  },
+};
+
+// Auth API
+export const authAPI = {
+  adminLogin: async (username: string, password: string) => {
+    const response = await api.post('/auth/admin/login', { username, password });
     return response.data;
   },
 };

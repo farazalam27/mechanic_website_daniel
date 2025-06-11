@@ -271,3 +271,206 @@
     flex-direction: row;
   }
 }
+
+/* Calendar Styles */
+.calendar-card {
+  border: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.calendar-header {
+  background: var(--light-gray);
+  border-bottom: 2px solid #dee2e6;
+  padding: 1rem;
+}
+
+.calendar-nav-btn {
+  text-decoration: none;
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: none;
+}
+
+.calendar-nav-btn:hover {
+  color: var(--primary-dark);
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 5px;
+}
+
+.calendar-month-title {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.calendar-grid {
+  margin-top: 0;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: #dee2e6;
+  border: 1px solid #dee2e6;
+  margin-bottom: 1px;
+}
+
+.calendar-weekday {
+  background: white;
+  padding: 1rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--primary-color);
+  font-size: 0.9rem;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: #dee2e6;
+  border: 1px solid #dee2e6;
+  min-height: 400px;
+}
+
+.calendar-day,
+.calendar-day-empty {
+  background: white;
+  min-height: 100px;
+  padding: 0.75rem;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.calendar-day:hover {
+  background: var(--light-gray);
+}
+
+.calendar-day.today {
+  background: #fff3cd;
+}
+
+.calendar-day.today .calendar-day-number {
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.calendar-day.has-available {
+  cursor: pointer;
+  background: #e3f2fd;
+}
+
+.calendar-day.has-available:hover {
+  background: #bbdefb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-day.has-booked {
+  background: #ffebee;
+}
+
+.calendar-day-number {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.calendar-day-indicators {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+}
+
+.indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.indicator.available {
+  background: #4caf50;
+}
+
+.indicator.booked {
+  background: #f44336;
+}
+
+.calendar-legend {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  padding: 1.5rem;
+  border-top: 2px solid #dee2e6;
+  background: var(--light-gray);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: #495057;
+  font-weight: 600;
+}
+
+/* Customers and Vehicles Tables */
+.customers-table,
+.vehicles-table {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.customers-table th,
+.vehicles-table th {
+  background: var(--light-gray);
+  color: var(--primary-color);
+  font-weight: 700;
+  border-bottom: 2px solid #dee2e6;
+  padding: 1rem;
+}
+
+.customers-table td,
+.vehicles-table td {
+  vertical-align: middle;
+  padding: 1rem;
+}
+
+.customers-table tbody tr:hover,
+.vehicles-table tbody tr:hover {
+  background: var(--light-gray);
+}
+
+/* Mobile Calendar Adjustments */
+@media (max-width: 768px) {
+  .calendar-day {
+    min-height: 70px;
+    padding: 0.5rem;
+  }
+  
+  .calendar-day-number {
+    font-size: 0.9rem;
+  }
+  
+  .calendar-weekday {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .calendar-legend {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+}

@@ -11,6 +11,7 @@ import customerRoutes from './routes/customerRoutes';
 import vehicleRoutes from './routes/vehicleRoutes';
 import appointmentRoutes from './routes/appointmentRoutes';
 import availableTimeSlotRoutes from './routes/availableTimeSlotRoutes';
+import authRoutes from './routes/authRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -31,6 +32,7 @@ mongoose.connect(MONGO_URI)
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Register routes
+app.use('/api/auth', authRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/appointments', appointmentRoutes);
@@ -43,10 +45,15 @@ app.get('/api/health', (req, res) => {
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {
+  // Serve static files from React build
   app.use(express.static(path.join(__dirname, '../client/build')));
 
+  // Handle React routing, return all requests to React app
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+    // Don't serve index.html for API routes
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+    }
   });
 }
 
