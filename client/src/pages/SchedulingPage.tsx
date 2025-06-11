@@ -67,7 +67,7 @@ const SchedulingPage: React.FC = () => {
   const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
-  const [success] = useState<boolean>(false);
+  const [success, setSuccess] = useState<boolean>(false);
 
   // Service types
   const serviceTypes: ServiceType[] = [
