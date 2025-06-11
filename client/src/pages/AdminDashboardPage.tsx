@@ -230,7 +230,7 @@ const AdminDashboardPage: React.FC = () => {
       loadTimeSlots();
       loadAppointments();
     }
-  }, [dateRange, isAuthenticated]);
+  }, [dateRange, isAuthenticated, loadTimeSlots, loadAppointments]);
   
   // Load time slots for current month when calendar month changes
   useEffect(() => {
@@ -249,7 +249,7 @@ const AdminDashboardPage: React.FC = () => {
     if (isAuthenticated && activeTab === 'appointments') {
       loadAppointments();
     }
-  }, [activeTab, isAuthenticated]);
+  }, [activeTab, isAuthenticated, loadAppointments]);
 
   // Open time slot modal for adding or editing
   const openTimeSlotModal = (timeSlot: TimeSlot | null = null) => {
