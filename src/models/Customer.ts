@@ -6,6 +6,9 @@ export interface ICustomer extends Document {
   lastName: string;
   phoneNumber: string;
   email?: string;
+  password?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +37,19 @@ const CustomerSchema: Schema = new Schema(
       trim: true,
       lowercase: true,
       match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email address']
+    },
+    password: {
+      type: String,
+      required: false,
+      minlength: [6, 'Password must be at least 6 characters long']
+    },
+    resetPasswordToken: {
+      type: String,
+      required: false
+    },
+    resetPasswordExpires: {
+      type: Date,
+      required: false
     }
   },
   {
