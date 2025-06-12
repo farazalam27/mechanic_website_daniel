@@ -7,6 +7,8 @@ import ServicesPage from './pages/ServicesPage';
 import SchedulingPage from './pages/SchedulingPage';
 import CustomerDashboardPage from './pages/CustomerDashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import LoginPage from './pages/LoginPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import NotFoundPage from './pages/NotFoundPage';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
@@ -24,6 +26,8 @@ const App: React.FC = () => {
             <Route path="/schedule" element={<SchedulingPage />} />
             <Route path="/dashboard" element={<CustomerDashboardPage />} />
             <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>

@@ -135,6 +135,18 @@ export const authAPI = {
     const response = await api.post('/auth/admin/login', { username, password });
     return response.data;
   },
+  customerLogin: async (phoneNumber: string, password: string) => {
+    const response = await api.post('/auth/customer/login', { phoneNumber, password });
+    return response.data;
+  },
+  forgotPassword: async (phoneNumber: string) => {
+    const response = await api.post('/auth/forgot-password', { phoneNumber });
+    return response.data;
+  },
+  resetPassword: async (phoneNumber: string, resetCode: string, newPassword: string) => {
+    const response = await api.post('/auth/reset-password', { phoneNumber, resetCode, newPassword });
+    return response.data;
+  },
 };
 
 export default api;

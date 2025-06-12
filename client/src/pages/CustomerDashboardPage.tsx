@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Form, Table, Badge, Alert, Spinner, Modal } from 'react-bootstrap';
 import { customerAPI, vehicleAPI, appointmentAPI } from '../services/api';
-import { FaUser, FaCar, FaCalendarAlt, FaPhone, FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
+import { FaUser, FaCar, FaCalendarAlt, FaPhone, FaEdit, FaTrash, FaPlus, FaEnvelope, FaCheck, FaTimes } from 'react-icons/fa';
 import './CustomerDashboardPage.css';
 
 // Types
@@ -36,9 +37,11 @@ interface Appointment {
 }
 
 const CustomerDashboardPage: React.FC = () => {
+  const navigate = useNavigate();
+  
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [phoneNumber, setPhoneNumber] = useState<string>('');
+  const [, setPhoneNumber] = useState<string>('');
 
   // Data states
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -67,7 +70,48 @@ const CustomerDashboardPage: React.FC = () => {
   const [color, setColor] = useState<string>('');
   const [licensePlate, setLicensePlate] = useState<string>('');
 
-  // Format phone number as user types
+  // Email editing states
+  const [isEditingEmail, setIsEditingEmail] = useState<boolean>(false);
+  const [editedEmail, setEditedEmail] = useState<string>('');
+  const [emailSaving, setEmailSaving] = useState<boolean>(false);
+
+  // Check for authentication on mount
+  useEffect(() => {
+    const token = localStorage.getItem('customerToken');
+    const storedPhone = localStorage.getItem('customerPhone');
+    
+    if (token && storedPhone) {
+      setIsAuthenticated(true);
+      setPhoneNumber(storedPhone);
+      loadCustomerData(storedPhone);
+    } else {
+      navigate('/login');
+    }
+  }, [navigate]);
+
+  // Load customer data
+  const loadCustomerData = async (phone: string) => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const customerResponse = await customerAPI.getByPhone(phone);
+      setCustomer(customerResponse);
+
+      const vehiclesResponse = await vehicleAPI.getByCustomerPhone(phone);
+      setVehicles(vehiclesResponse);
+
+      const appointmentsResponse = await appointmentAPI.getByCustomerPhone(phone);
+      setAppointments(appointmentsResponse);
+    } catch (err) {
+      setError('Error loading data. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Format phone number for display
   const formatPhoneNumber = (value: string) => {
     // Remove all non-digits
     const phoneDigits = value.replace(/\D/g, '');
@@ -82,54 +126,34 @@ const CustomerDashboardPage: React.FC = () => {
     }
   };
 
-  // Handle phone number change
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedNumber = formatPhoneNumber(e.target.value);
-    setPhoneNumber(formattedNumber);
+  // Email editing functions
+  const startEditingEmail = () => {
+    setEditedEmail(customer?.email || '');
+    setIsEditingEmail(true);
   };
 
-  // Login with phone number
-  const handleLogin = async () => {
-    setLoading(true);
+  const cancelEditingEmail = () => {
+    setIsEditingEmail(false);
+    setEditedEmail('');
+  };
+
+  const saveEmail = async () => {
+    if (!customer) return;
+
+    setEmailSaving(true);
     setError('');
 
     try {
-      // Remove formatting from phone number for API call
-      const cleanPhoneNumber = phoneNumber.replace(/\D/g, '');
-
-      const response = await customerAPI.getByPhone(cleanPhoneNumber);
-      setCustomer(response as Customer);
-
-      // Get customer's vehicles
-      const vehiclesResponse = await vehicleAPI.getByCustomerPhone(cleanPhoneNumber);
-      setVehicles(vehiclesResponse as Vehicle[]);
-
-      // Get customer's appointments
-      const appointmentsResponse = await appointmentAPI.getByCustomerPhone(cleanPhoneNumber);
-      setAppointments(appointmentsResponse as unknown as Appointment[]);
-
-      setIsAuthenticated(true);
+      const updatedCustomer = await customerAPI.update(customer._id, { email: editedEmail });
+      setCustomer(updatedCustomer);
+      setIsEditingEmail(false);
+      setEditedEmail('');
     } catch (err) {
-      if (err && typeof err === 'object' && 'response' in err && 
-          err.response && typeof err.response === 'object' && 'status' in err.response && 
-          err.response.status === 404) {
-        setError('No customer found with this phone number. Please check the number or schedule a service first.');
-      } else {
-        setError('An error occurred while logging in. Please try again.');
-        console.error(err);
-      }
+      setError('Failed to update email. Please try again.');
+      console.error('Email update error:', err);
     } finally {
-      setLoading(false);
+      setEmailSaving(false);
     }
-  };
-
-  // Logout
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setCustomer(null);
-    setVehicles([]);
-    setAppointments([]);
-    setPhoneNumber('');
   };
 
   // Open vehicle modal for adding or editing
@@ -284,81 +308,75 @@ const CustomerDashboardPage: React.FC = () => {
       {/* Dashboard Content */}
       <section className="dashboard-content py-5">
         <Container>
-          {!isAuthenticated ? (
-            <Row className="justify-content-center">
-              <Col md={8} lg={6}>
-                <Card className="login-card">
-                  <Card.Body>
-                    <div className="text-center mb-4">
-                      <div className="login-icon">
-                        <FaUser />
-                      </div>
-                      <h2 className="login-title">Customer Login</h2>
-                      <p className="login-subtitle">
-                        Enter your phone number to access your dashboard
-                      </p>
-                    </div>
-
-                    {error && <Alert variant="danger">{error}</Alert>}
-
-                    <Form>
-                      <Form.Group className="mb-3">
-                        <Form.Label>Phone Number</Form.Label>
-                        <div className="d-flex">
-                          <Form.Control
-                            type="text"
-                            value={phoneNumber}
-                            onChange={handlePhoneChange}
-                            placeholder="(555) 123-4567"
-                            disabled={loading}
-                          />
-                          <Button 
-                            variant="primary" 
-                            className="ms-2" 
-                            onClick={handleLogin}
-                            disabled={loading || phoneNumber.replace(/\D/g, '').length < 10}
-                          >
-                            {loading ? <Spinner animation="border" size="sm" /> : 'Login'}
-                          </Button>
-                        </div>
-                        <Form.Text className="text-muted">
-                          We'll use your phone number to find your information
-                        </Form.Text>
-                      </Form.Group>
-                    </Form>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-          ) : (
+          {isAuthenticated && (
             <>
               {/* Customer Info */}
               <Row className="mb-4">
                 <Col>
                   <Card className="customer-info-card">
                     <Card.Body>
-                      <div className="d-flex justify-content-between align-items-center">
+                      <div className="d-flex justify-content-center align-items-center">
                         <div className="d-flex align-items-center">
                           <div className="customer-avatar">
                             <FaUser />
                           </div>
                           <div className="ms-3">
                             <h2 className="customer-name">{customer?.firstName} {customer?.lastName}</h2>
-                            <p className="customer-details">
-                              <FaPhone className="me-2" />
-                              {formatPhoneNumber(customer?.phoneNumber || '')}
-                              {customer?.email && (
-                                <span className="ms-3">{customer.email}</span>
-                              )}
-                            </p>
+                            <div className="customer-details">
+                              <div className="contact-row">
+                                <FaPhone className="me-3" style={{ minWidth: '16px', fontSize: '14px' }} />
+                                <span>{formatPhoneNumber(customer?.phoneNumber || '')}</span>
+                              </div>
+                              <div className="contact-row">
+                                <FaEnvelope className="me-3" style={{ minWidth: '16px', fontSize: '14px' }} />
+                                {isEditingEmail ? (
+                                  <div className="d-flex align-items-center w-100">
+                                    <Form.Control
+                                      type="email"
+                                      value={editedEmail}
+                                      onChange={(e) => setEditedEmail(e.target.value)}
+                                      placeholder="Enter email address"
+                                      size="sm"
+                                      style={{ maxWidth: '200px' }}
+                                      autoFocus
+                                    />
+                                    <Button
+                                      variant="outline-success"
+                                      size="sm"
+                                      className="ms-2"
+                                      onClick={saveEmail}
+                                      disabled={emailSaving}
+                                    >
+                                      {emailSaving ? <Spinner animation="border" size="sm" /> : <FaCheck />}
+                                    </Button>
+                                    <Button
+                                      variant="outline-secondary"
+                                      size="sm"
+                                      className="ms-1"
+                                      onClick={cancelEditingEmail}
+                                      disabled={emailSaving}
+                                    >
+                                      <FaTimes />
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <div className="d-flex align-items-center">
+                                    <span className="me-2">
+                                      {customer?.email || 'No email address'}
+                                    </span>
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      onClick={startEditingEmail}
+                                    >
+                                      <FaEdit />
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        <Button 
-                          variant="outline-secondary" 
-                          onClick={handleLogout}
-                        >
-                          Logout
-                        </Button>
                       </div>
                     </Card.Body>
                   </Card>

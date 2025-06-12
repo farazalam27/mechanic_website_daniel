@@ -3,7 +3,7 @@ import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { FaPhone, FaOilCan, FaTools, FaCar, FaCalendarAlt } from 'react-icons/fa';
 import './HomePage.css';
 
-const PHONE_NUMBER = "+1 (571) 594-8526";
+const PHONE_NUMBER = "(555) 123-4567";
 
 const HomePage: React.FC = () => {
   return (

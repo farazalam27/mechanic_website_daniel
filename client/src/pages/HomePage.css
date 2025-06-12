@@ -274,7 +274,7 @@
 
 .services-section {
   padding: 5rem 0;
-  background: var(--off-white);
+  background-color: var(--light-gray);
 }
 
 .section-title {

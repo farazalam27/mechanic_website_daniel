@@ -49,6 +49,7 @@
 
 /* Services Overview */
 .services-overview {
+  background-color: var(--light-gray);
   padding: 4rem 0;
 }
 

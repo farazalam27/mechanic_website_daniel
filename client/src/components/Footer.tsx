@@ -5,7 +5,7 @@ import './Footer.css';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-  const phoneNumber = "+1 (571) 594-8526";
+  const phoneNumber = "(555) 123-4567";
   
   return (
     <footer className="site-footer">

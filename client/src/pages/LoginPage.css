@@ -1,0 +1,132 @@
+/* Login Page */
+.login-page {
+  background-color: var(--light-gray);
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+/* Login Card - matching AdminDashboardPage.css */
+.login-card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  padding: 2.5rem;
+  max-width: 1600px;
+  min-height: 500px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.login-icon {
+  font-size: 3rem;
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+}
+
+.login-title {
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.login-subtitle {
+  color: var(--dark-gray);
+  font-size: 1rem;
+  opacity: 0.8;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Login Type Selector */
+.login-type-selector {
+  display: flex;
+  gap: 0;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.login-type-selector .btn {
+  border-radius: 0;
+  border: 1px solid var(--bs-primary);
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+}
+
+.login-type-selector .btn:first-child {
+  border-radius: 5px 0 0 5px;
+}
+
+.login-type-selector .btn:last-child {
+  border-radius: 0 5px 5px 0;
+  border-left: none;
+}
+
+.login-type-selector .btn-outline-primary:hover {
+  color: #fff;
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+/* Form Styling */
+.login-card .form-label {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.login-card .form-control {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  margin-bottom: 1rem;
+}
+
+.login-card .form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.login-card .btn-primary {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .login-page {
+    padding: 1rem 0;
+  }
+  
+  .login-card {
+    padding: 1.5rem;
+  }
+  
+  .login-title {
+    font-size: 1.5rem;
+  }
+  
+  .login-type-selector {
+    flex-direction: column;
+  }
+  
+  .login-type-selector .btn:first-child {
+    border-radius: 5px 5px 0 0;
+  }
+  
+  .login-type-selector .btn:last-child {
+    border-radius: 0 0 5px 5px;
+    border-left: 1px solid var(--bs-primary);
+    border-top: none;
+  }
+}

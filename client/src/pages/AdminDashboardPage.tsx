@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Form, Table, Badge, Alert, Spinner, Modal } from 'react-bootstrap';
-import { timeSlotAPI, appointmentAPI, authAPI, customerAPI, vehicleAPI } from '../services/api';
-import { FaCalendarAlt, FaClock, FaPlus, FaEdit, FaTrash, FaLock, FaUsers, FaCar, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { timeSlotAPI, appointmentAPI, customerAPI, vehicleAPI } from '../services/api';
+import { FaCalendarAlt, FaClock, FaPlus, FaEdit, FaTrash, FaUsers, FaCar, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import './AdminDashboardPage.css';
 
 // Types
@@ -60,10 +61,10 @@ interface Vehicle {
 }
 
 const AdminDashboardPage: React.FC = () => {
+  const navigate = useNavigate();
+  
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [adminUsername, setAdminUsername] = useState<string>('');
-  const [adminPassword, setAdminPassword] = useState<string>('');
 
   // Data states
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
@@ -139,32 +140,20 @@ const AdminDashboardPage: React.FC = () => {
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>(null);
   const [showDayModal, setShowDayModal] = useState<boolean>(false);
 
-  // Handle admin login
-  const handleLogin = async () => {
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await authAPI.adminLogin(adminUsername, adminPassword);
-      
-      if (response.success) {
-        setIsAuthenticated(true);
-        // Store token for future API calls if needed
-        localStorage.setItem('adminToken', response.token);
-        loadTimeSlots();
-        loadAppointments();
-        loadCustomers();
-        loadVehicles();
-      } else {
-        setError('Invalid credentials. Please try again.');
-      }
-    } catch (err) {
-      setError('Invalid username or password. Please try again.');
-      console.error(err);
-    } finally {
-      setLoading(false);
+  // Check for existing admin token on mount
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+      setIsAuthenticated(true);
+      loadTimeSlots();
+      loadAppointments();
+      loadCustomers();
+      loadVehicles();
+    } else {
+      // Redirect to login if not authenticated
+      navigate('/login');
     }
-  };
+  }, [navigate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load time slots for the selected date range
   const loadTimeSlots = useCallback(async () => {
@@ -729,61 +718,7 @@ const AdminDashboardPage: React.FC = () => {
       {/* Dashboard Content */}
       <section className="admin-content py-5">
         <Container>
-          {!isAuthenticated ? (
-            <Row className="justify-content-center">
-              <Col md={8} lg={6}>
-                <Card className="login-card">
-                  <Card.Body>
-                    <div className="text-center mb-4">
-                      <div className="login-icon">
-                        <FaLock />
-                      </div>
-                      <h2 className="login-title">Admin Login</h2>
-                      <p className="login-subtitle">
-                        Enter your admin credentials to access the dashboard
-                      </p>
-                    </div>
-
-                    {error && <Alert variant="danger">{error}</Alert>}
-
-                    <Form>
-                      <Form.Group className="mb-3">
-                        <Form.Label>Username</Form.Label>
-                        <Form.Control
-                          type="text"
-                          value={adminUsername}
-                          onChange={(e) => setAdminUsername(e.target.value)}
-                          placeholder="Enter admin username"
-                          disabled={loading}
-                        />
-                      </Form.Group>
-
-                      <Form.Group className="mb-3">
-                        <Form.Label>Password</Form.Label>
-                        <Form.Control
-                          type="password"
-                          value={adminPassword}
-                          onChange={(e) => setAdminPassword(e.target.value)}
-                          placeholder="Enter admin password"
-                          disabled={loading}
-                        />
-                      </Form.Group>
-
-                      <div className="d-grid">
-                        <Button 
-                          variant="primary" 
-                          onClick={handleLogin}
-                          disabled={loading || !adminUsername || !adminPassword}
-                        >
-                          {loading ? <Spinner animation="border" size="sm" /> : 'Login'}
-                        </Button>
-                      </div>
-                    </Form>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-          ) : (
+          {isAuthenticated && (
             <>
               {/* Date Range Selector */}
               <Row className="mb-4">

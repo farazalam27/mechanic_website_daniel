@@ -50,6 +50,25 @@
   min-height: 500px;
 }
 
+/* Customer Email Editing */
+.customer-details .btn-sm {
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.customer-details .form-control {
+  border: 1px solid #ddd;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.customer-details .form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
 /* Login Card */
 .login-card {
   border: none;
@@ -108,8 +127,16 @@
 .customer-details {
   color: var(--dark-gray);
   margin-bottom: 0;
+}
+
+.customer-details .contact-row {
   display: flex;
   align-items: center;
+  margin-bottom: 12px;
+}
+
+.customer-details .contact-row:last-child {
+  margin-bottom: 0;
 }
 
 /* Dashboard Tabs */
